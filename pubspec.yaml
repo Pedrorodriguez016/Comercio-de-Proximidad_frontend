@@ -36,6 +36,11 @@ dependencies:
   cupertino_icons: ^1.0.8
   dio: ^5.9.2
   flutter_wallet_card: ^5.0.0
+  url_launcher: ^6.2.5
+  get: ^4.7.3
+  shared_preferences: ^2.5.5
+  google_fonts: ^8.1.0
+  app_links: ^7.0.0
 
 dev_dependencies:
   flutter_test:
