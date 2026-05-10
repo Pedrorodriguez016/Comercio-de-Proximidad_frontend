@@ -9,6 +9,7 @@ import 'screens/user_pass_screen.dart';
 import 'theme/app_theme.dart';
 import 'controller/auth_controller.dart';
 import 'controller/navigation_controller.dart';
+import 'controller/commerce_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +18,14 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => NavigationController()),
+        ChangeNotifierProvider(create: (_) => CommerceController()),
       ],
       child: const MyApp(),
     ),
   );
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -29,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Comercio Proximidad',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

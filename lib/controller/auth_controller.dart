@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/token_manager.dart';
 import 'package:app_links/app_links.dart';
 import '../services/auth_service.dart';
 
@@ -7,7 +7,8 @@ class AuthController with ChangeNotifier {
   final AuthService _authService = AuthService();
   late AppLinks _appLinks;
 
-  bool _isInitializing = true; // Nuevo: para saber si estamos cargando la app al inicio
+  bool _isInitializing =
+      true; // Nuevo: para saber si estamos cargando la app al inicio
   bool _isLoading = false;
   bool _isLoggedIn = false;
   String _userToken = '';
@@ -39,13 +40,15 @@ class AuthController with ChangeNotifier {
   }
 
   Future<void> _completeSameDeviceLogin(String sessionId) async {
+    print("AUTH_CONTROLLER: Completando login para $sessionId");
     try {
       _isLoading = true;
       notifyListeners();
-      
+
       final tokens = await _authService.exchangeToken(sessionId);
 
       if (tokens != null) {
+        print("AUTH_CONTROLLER: Token recibido con éxito");
         _userToken = tokens['access_token'];
         _isLoggedIn = true;
 
@@ -54,17 +57,16 @@ class AuthController with ChangeNotifier {
           _userData = Map<String, dynamic>.from(userRawData);
         }
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', _userToken);
-        
-        // Manejar el ID de forma robusta
-        String? userId = _userData['_id'] ?? _userData['id'];
-        if (userId != null) {
-          await prefs.setString('userId', userId);
-        }
+        await TokenManager.saveTokens(
+          accessToken: _userToken,
+          userId: _userData['_id'] ?? _userData['id'],
+        );
+        print("AUTH_CONTROLLER: Sesión guardada y login marcado como TRUE");
+      } else {
+        print("AUTH_CONTROLLER: El intercambio de tokens devolvió NULL");
       }
     } catch (e) {
-      print("ERROR SSI LOGIN: $e");
+      print("AUTH_CONTROLLER: ERROR SSI LOGIN -> $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -75,11 +77,10 @@ class AuthController with ChangeNotifier {
     try {
       _isInitializing = true;
       notifyListeners();
-      
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
-      String? userId = prefs.getString('userId');
-      
+
+      String? token = await TokenManager.getAccessToken();
+      String? userId = await TokenManager.getUserId();
+
       if (token != null) {
         _userToken = token;
         _isLoggedIn = true;
@@ -101,7 +102,7 @@ class AuthController with ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      
+
       var response = await _authService.login(email, password);
 
       if (response.statusCode == 200 && response.data != null) {
@@ -116,12 +117,10 @@ class AuthController with ChangeNotifier {
           _userData = Map<String, dynamic>.from(userRawData);
         }
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', token);
-        String? userId = _userData['_id'] ?? _userData['id'];
-        if (userId != null) {
-          await prefs.setString('userId', userId);
-        }
+        await TokenManager.saveTokens(
+          accessToken: _userToken,
+          userId: _userData['_id'] ?? _userData['id'],
+        );
 
         return true;
       }
@@ -135,7 +134,12 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  Future<bool> register(String name, String surnames, String email, String password) async {
+  Future<bool> register(
+    String name,
+    String surnames,
+    String email,
+    String password,
+  ) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -166,15 +170,13 @@ class AuthController with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('userId');
+    await TokenManager.clearTokens();
     _userToken = '';
     _isLoggedIn = false;
     _userData = {};
     notifyListeners();
   }
-  
+
   Future<void> loginSameDevice() async {
     try {
       // Nota: Aquí NO ponemos _isLoading = true global si no queremos que AuthWrapper reaccione

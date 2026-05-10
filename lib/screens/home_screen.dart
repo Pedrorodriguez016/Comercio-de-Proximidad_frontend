@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
 import '../controller/navigation_controller.dart';
+import '../controller/commerce_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/category_card.dart';
 import '../widgets/featured_banner.dart';
 import '../widgets/bottom_nav_bar.dart';
+import 'search_screen.dart';
 import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -22,7 +24,7 @@ class HomeScreen extends StatelessWidget {
         index: navController.currentIndex,
         children: [
           _buildHomeContent(context),
-          const Center(child: Text("Pantalla de Búsqueda")), // Placeholder
+          const SearchScreen(),
           ProfileScreen(),
         ],
       ),
@@ -35,6 +37,13 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildHomeContent(BuildContext context) {
     final authController = context.watch<AuthController>();
+    final commerceController = context.read<CommerceController>();
+    final navController = context.read<NavigationController>();
+
+    void onCategoryTap(String category) {
+      commerceController.setCategoryAndSearch(category);
+      navController.changeIndex(1); // Cambiar a la pestaña de búsqueda
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -97,7 +106,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => navController.changeIndex(1),
                   child: Text(
                     "Ver todas",
                     style: GoogleFonts.manrope(color: AppColors.secondary),
@@ -110,11 +119,31 @@ class HomeScreen extends StatelessWidget {
               height: 100,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: const [
-                  CategoryCard(title: "Frutas", icon: Icons.apple, color: AppColors.primary),
-                  CategoryCard(title: "Panadería", icon: Icons.bakery_dining, color: AppColors.secondary),
-                  CategoryCard(title: "Café", icon: Icons.coffee, color: AppColors.neutral),
-                  CategoryCard(title: "Flores", icon: Icons.local_florist, color: AppColors.primary),
+                children: [
+                  CategoryCard(
+                    title: "Alimentación", 
+                    icon: Icons.restaurant, 
+                    color: AppColors.primary,
+                    onTap: () => onCategoryTap("Alimentación"),
+                  ),
+                  CategoryCard(
+                    title: "Ropa", 
+                    icon: Icons.shopping_bag, 
+                    color: AppColors.secondary,
+                    onTap: () => onCategoryTap("Ropa"),
+                  ),
+                  CategoryCard(
+                    title: "Restauración", 
+                    icon: Icons.coffee, 
+                    color: AppColors.neutral,
+                    onTap: () => onCategoryTap("Restauración"),
+                  ),
+                  CategoryCard(
+                    title: "Servicios", 
+                    icon: Icons.build, 
+                    color: AppColors.primary,
+                    onTap: () => onCategoryTap("Servicios"),
+                  ),
                 ],
               ),
             ),
