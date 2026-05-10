@@ -90,4 +90,18 @@ class AuthService {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> getProfile(String userId, String token) async {
+    try {
+      final response = await _dio.get('/user/$userId', options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      ));
+      return response.data;
+    } catch (e) {
+      print('GET PROFILE ERROR: $e');
+      return null;
+    }
+  }
 }

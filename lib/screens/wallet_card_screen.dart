@@ -1,30 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_wallet_card/flutter_wallet_card.dart';
 import '../controller/auth_controller.dart';
 import '../theme/app_theme.dart';
 
 class WalletCardScreen extends StatelessWidget {
   const WalletCardScreen({super.key});
 
-  Future<void> _addPass() async {
-    try {
-      bool isCardShown = await FlutterWalletCard.addFromUrl(
-        'http://localhost:8005/storage/wallet/download/user_card.pkpass?user_id=${Get.find<AuthController>().userData['id'] ?? ''}',
-      );
-
-      if (isCardShown) {
-        Get.snackbar("Éxito", "Tarjeta añadida a Google Wallet");
-        Get.offAllNamed('/home');
-      }
-    } catch (e) {
-      Get.snackbar("Error", "No se pudo añadir la tarjeta: ${e.toString()}");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final authController = context.watch<AuthController>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -41,6 +27,7 @@ class WalletCardScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
+            // Tarjeta Visual
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -73,9 +60,7 @@ class WalletCardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 40),
                   Text(
-                    Get.find<AuthController>().userData['name']
-                            ?.toUpperCase() ??
-                        "USUARIO",
+                    authController.userData['name']?.toUpperCase() ?? "USUARIO",
                     style: GoogleFonts.manrope(
                       color: Colors.white,
                       fontSize: 18,
@@ -84,7 +69,7 @@ class WalletCardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "ID: #${Get.find<AuthController>().userData['id']?.toString().substring(0, 8) ?? '12345678'}",
+                    "ID: #${(authController.userData['_id'] ?? authController.userData['id'])?.toString().substring(0, 8) ?? '12345678'}",
                     style: GoogleFonts.manrope(
                       color: AppColors.tertiary.withOpacity(0.6),
                       fontSize: 12,
@@ -104,7 +89,7 @@ class WalletCardScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          "PUNTOS: 500",
+                          "PUNTOS: ${authController.userData['points'] ?? 0}",
                           style: GoogleFonts.manrope(
                             color: Colors.white,
                             fontSize: 12,
@@ -119,7 +104,7 @@ class WalletCardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             Text(
-              "¡Bienvenido a tu primer login!",
+              "¡Bienvenido!",
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSerif(
                 fontSize: 24,
@@ -129,7 +114,7 @@ class WalletCardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "Tu tarjeta de fidelización está lista para ser añadida a tu Google Wallet. Disfruta de beneficios exclusivos en comercios locales.",
+              "Ya formas parte de nuestra red de comercio local. Acumula puntos con cada compra y canjéalos por beneficios exclusivos.",
               textAlign: TextAlign.center,
               style: GoogleFonts.manrope(
                 fontSize: 16,
@@ -137,33 +122,22 @@ class WalletCardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 48),
-            ElevatedButton.icon(
-              onPressed: _addPass,
-              icon: const Icon(Icons.wallet, size: 24),
-              label: Text(
-                "Añadir a Google Wallet",
-                style: GoogleFonts.manrope(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            ElevatedButton(
+              onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.onBackground,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 60),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => Get.offAllNamed('/home'),
               child: Text(
-                "Omitir por ahora",
+                "COMENZAR",
                 style: GoogleFonts.manrope(
-                  color: AppColors.neutral,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
                 ),
               ),
             ),

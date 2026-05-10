@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
 import '../theme/app_theme.dart';
 
 class RegisterScreen extends StatelessWidget {
-  final AuthController _authController = Get.find<AuthController>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnamesController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -15,6 +14,8 @@ class RegisterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = context.watch<AuthController>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Container(
@@ -25,7 +26,7 @@ class RegisterScreen extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               AppColors.secondary,
-              Color(0xFFA6643C), // Darker shade of secondary
+              Color(0xFFA6643C), 
             ],
           ),
         ),
@@ -123,22 +124,27 @@ class RegisterScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 40),
-                        Obx(() => MaterialButton(
-                          onPressed: _authController.isLoading.value 
+                        MaterialButton(
+                          onPressed: authController.isLoading 
                             ? null 
-                            : () => _authController.register(
-                                _nameController.text, 
-                                _surnamesController.text, 
-                                _emailController.text, 
-                                _passwordController.text
-                              ),
+                            : () async {
+                                final success = await authController.register(
+                                  _nameController.text, 
+                                  _surnamesController.text, 
+                                  _emailController.text, 
+                                  _passwordController.text
+                                );
+                                if (success && context.mounted) {
+                                  Navigator.pop(context);
+                                }
+                              },
                           height: 55,
                           minWidth: double.infinity,
                           color: AppColors.secondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child: _authController.isLoading.value
+                          child: authController.isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : Text(
                                 "Registrarse",
@@ -148,10 +154,10 @@ class RegisterScreen extends StatelessWidget {
                                   fontSize: 16,
                                 ),
                               ),
-                        )),
+                        ),
                         const SizedBox(height: 20),
                         TextButton(
-                          onPressed: () => Get.back(),
+                          onPressed: () => Navigator.pop(context),
                           child: Text(
                             "¿Ya tienes cuenta? Inicia sesión",
                             style: GoogleFonts.manrope(

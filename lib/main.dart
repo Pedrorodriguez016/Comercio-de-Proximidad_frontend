@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/wallet_card_screen.dart';
-
+import 'screens/user_pass_screen.dart';
 import 'theme/app_theme.dart';
-
-import 'binidings/auth_binding.dart';
+import 'controller/auth_controller.dart';
+import 'controller/navigation_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => NavigationController()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,31 +28,41 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return MaterialApp(
       title: 'Comercio Proximidad',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      initialBinding: AuthBinding(),
-      initialRoute: '/splash',
-      getPages: [
-        GetPage(name: '/splash', page: () => const SplashScreen(), transition: Transition.noTransition),
-        GetPage(
-          name: '/login',
-          page: () => LoginScreen(),
-        ),
-        GetPage(
-          name: '/register',
-          page: () => RegisterScreen(),
-        ),
-        GetPage(
-          name: '/home',
-          page: () => HomeScreen(),
-        ),
-        GetPage(
-          name: '/wallet-card',
-          page: () => const WalletCardScreen(),
-        ),
-      ],
+      home: const AuthWrapper(),
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/register': (context) => RegisterScreen(),
+        '/home': (context) => HomeScreen(),
+        '/wallet-card': (context) => const WalletCardScreen(),
+        '/user-pass': (context) => UserPassScreen(),
+      },
     );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthController>();
+    
+    // Solo mostrar Splash durante la inicialización (checkLoginStatus)
+    if (auth.isInitializing) {
+      return const SplashScreen();
+    }
+    
+    // Si no está logueado, ir al Login
+    if (!auth.isLoggedIn) {
+      return LoginScreen();
+    }
+
+
+    // Por defecto, ir a Home
+    return HomeScreen();
   }
 }

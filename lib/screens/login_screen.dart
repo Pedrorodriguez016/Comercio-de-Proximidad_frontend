@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
 import '../theme/app_theme.dart';
 
 class LoginScreen extends StatelessWidget {
-  final AuthController _authController = Get.find<AuthController>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -13,6 +12,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = context.watch<AuthController>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Container(
@@ -23,7 +24,7 @@ class LoginScreen extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               AppColors.primary,
-              Color(0xFF1E3026), // Darker shade of primary
+              Color(0xFF1E3026), 
             ],
           ),
         ),
@@ -109,33 +110,31 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 40),
-                        Obx(
-                          () => MaterialButton(
-                            onPressed: _authController.isLoading.value
-                                ? null
-                                : () => _authController.login(
-                                    _emailController.text,
-                                    _passwordController.text,
-                                  ),
-                            height: 55,
-                            minWidth: double.infinity,
-                            color: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: _authController.isLoading.value
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : Text(
-                                    "Iniciar Sesión",
-                                    style: GoogleFonts.manrope(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                        MaterialButton(
+                          onPressed: authController.isLoading
+                              ? null
+                              : () => authController.login(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                ),
+                          height: 55,
+                          minWidth: double.infinity,
+                          color: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
+                          child: authController.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  "Iniciar Sesión",
+                                  style: GoogleFonts.manrope(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
                         ),
                         const SizedBox(height: 20),
                         Center(
@@ -146,7 +145,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         OutlinedButton.icon(
-                          onPressed: () => _authController.loginSameDevice(),
+                          onPressed: () => authController.loginSameDevice(),
                           icon: const Icon(Icons.fingerprint, color: AppColors.primary),
                           label: Text(
                             "Entrar con Identidad Digital",
@@ -184,7 +183,7 @@ class LoginScreen extends StatelessWidget {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => Get.toNamed('/register'),
+                              onTap: () => Navigator.pushNamed(context, '/register'),
                               child: Text(
                                 "Regístrate",
                                 style: GoogleFonts.manrope(

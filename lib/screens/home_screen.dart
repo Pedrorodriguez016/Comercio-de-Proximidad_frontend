@@ -1,18 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
+import '../controller/navigation_controller.dart';
 import '../theme/app_theme.dart';
+import '../widgets/category_card.dart';
+import '../widgets/featured_banner.dart';
+import '../widgets/bottom_nav_bar.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  final AuthController _authController = Get.find<AuthController>();
-
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final navController = context.watch<NavigationController>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
+      body: IndexedStack(
+        index: navController.currentIndex,
+        children: [
+          _buildHomeContent(context),
+          const Center(child: Text("Pantalla de Búsqueda")), // Placeholder
+          ProfileScreen(),
+        ],
+      ),
+      bottomNavigationBar: MainBottomNavBar(
+        currentIndex: navController.currentIndex,
+        onTap: (index) => navController.changeIndex(index),
+      ),
+    );
+  }
+
+  Widget _buildHomeContent(BuildContext context) {
+    final authController = context.watch<AuthController>();
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           "Explorar",
@@ -22,7 +47,10 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () => _authController.logout(),
+            onPressed: () {
+              authController.logout();
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
             icon: const Icon(Icons.logout, color: AppColors.primary),
           )
         ],
@@ -33,7 +61,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Hola, ${_authController.userData['name'] ?? 'Usuario'}",
+              "Hola, ${authController.userData['name'] ?? 'Usuario'}",
               style: GoogleFonts.notoSerif(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -49,45 +77,13 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            // Placeholder for content
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.tertiary.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(24),
-                image: const DecorationImage(
-                  image: NetworkImage('https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60'),
-                  fit: BoxFit.cover,
-                  opacity: 0.7,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Mercados Locales",
-                      style: GoogleFonts.notoSerif(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        shadows: [const Shadow(blurRadius: 10, color: Colors.black45)],
-                      ),
-                    ),
-                    Text(
-                      "Descubre productos frescos cerca de ti",
-                      style: GoogleFonts.manrope(
-                        color: Colors.white,
-                        shadows: [const Shadow(blurRadius: 10, color: Colors.black45)],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            
+            const FeaturedBanner(
+              title: "Mercados Locales",
+              subtitle: "Descubre productos frescos cerca de ti",
+              imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
             ),
+
             const SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,60 +110,16 @@ class HomeScreen extends StatelessWidget {
               height: 100,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: [
-                  _categoryCard("Frutas", Icons.apple, AppColors.primary),
-                  _categoryCard("Panadería", Icons.bakery_dining, AppColors.secondary),
-                  _categoryCard("Café", Icons.coffee, AppColors.neutral),
-                  _categoryCard("Flores", Icons.local_florist, AppColors.primary),
+                children: const [
+                  CategoryCard(title: "Frutas", icon: Icons.apple, color: AppColors.primary),
+                  CategoryCard(title: "Panadería", icon: Icons.bakery_dining, color: AppColors.secondary),
+                  CategoryCard(title: "Café", icon: Icons.coffee, color: AppColors.neutral),
+                  CategoryCard(title: "Flores", icon: Icons.local_florist, color: AppColors.primary),
                 ],
               ),
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.neutral,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Buscar"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
-        ],
-      ),
-    );
-  }
-
-  Widget _categoryCard(String title, IconData icon, Color color) {
-    return Container(
-      width: 100,
-      margin: const EdgeInsets.only(right: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neutral.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 30),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: GoogleFonts.manrope(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppColors.onBackground,
-            ),
-          ),
-        ],
       ),
     );
   }
