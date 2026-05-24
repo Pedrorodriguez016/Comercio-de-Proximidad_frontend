@@ -42,7 +42,7 @@ class HomeScreen extends StatelessWidget {
 
     void onCategoryTap(String category) {
       commerceController.setCategoryAndSearch(category);
-      navController.changeIndex(1); // Cambiar a la pestaña de búsqueda
+      navController.changeIndex(1); 
     }
 
     return Scaffold(

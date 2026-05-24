@@ -15,7 +15,9 @@ class UserPassScreen extends StatelessWidget {
     final String userId = userData['_id'] ?? userData['id'] ?? 'Unknown ID';
     final String userName = userData['name'] ?? 'Usuario';
     final String userEmail = userData['email'] ?? '';
-    final int userPoints = userData['points'] ?? 0;
+    final int userPoints = userData['points'] is int 
+        ? userData['points'] 
+        : int.tryParse(userData['points']?.toString() ?? '0') ?? 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,

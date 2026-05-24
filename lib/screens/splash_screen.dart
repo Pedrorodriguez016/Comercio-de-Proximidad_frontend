@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 
@@ -21,8 +22,11 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.store_mall_directory_rounded, size: 80, color: AppColors.tertiary),
-            const SizedBox(height: 24),
+            SvgPicture.asset(
+              'assets/images/barcelona_comerc_logo.svg',
+              width: 300,
+            ),
+            const SizedBox(height: 32),
             Text(
               "Comercio Proximidad",
               style: GoogleFonts.notoSerif(

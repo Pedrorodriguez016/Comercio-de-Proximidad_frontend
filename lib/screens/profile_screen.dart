@@ -24,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
       ),
       body: RefreshIndicator(
         onRefresh: () => authController.refreshUserData(),
@@ -43,7 +43,10 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.secondary, width: 3),
+                        border: Border.all(
+                          color: AppColors.secondary,
+                          width: 3,
+                        ),
                       ),
                       child: const Icon(
                         Icons.person,
@@ -60,7 +63,11 @@ class ProfileScreen extends StatelessWidget {
                           color: AppColors.secondary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.edit, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],
@@ -136,13 +143,18 @@ class ProfileScreen extends StatelessWidget {
                             color: Colors.white.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.stars, color: AppColors.secondary, size: 32),
+                          child: const Icon(
+                            Icons.stars,
+                            color: AppColors.secondary,
+                            size: 32,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => Navigator.pushNamed(context, '/user-pass'),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/user-pass'),
                       icon: const Icon(Icons.qr_code, color: AppColors.primary),
                       label: Text(
                         "VER MI PASE",
@@ -167,21 +179,30 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Opciones de Menú
-              ProfileMenuItem(icon: Icons.history, title: "Historial de compras"),
-              ProfileMenuItem(icon: Icons.notifications_none, title: "Notificaciones"),
-              ProfileMenuItem(icon: Icons.settings_outlined, title: "Configuración"),
+              ProfileMenuItem(
+                icon: Icons.history,
+                title: "Historial de compras",
+              ),
+              ProfileMenuItem(
+                icon: Icons.notifications_none,
+                title: "Notificaciones",
+              ),
+              ProfileMenuItem(
+                icon: Icons.settings_outlined,
+                title: "Configuración",
+              ),
               const SizedBox(height: 16),
-              
+
               // Botón de Cerrar Sesión
               ProfileMenuItem(
-                icon: Icons.logout, 
+                icon: Icons.logout,
                 title: "Cerrar Sesión",
                 iconColor: Colors.red,
                 textColor: Colors.red,
                 onTap: () {
-              authController.logout();
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
+                  authController.logout();
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
               ),
             ],
           ),

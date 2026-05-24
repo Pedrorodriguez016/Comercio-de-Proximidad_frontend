@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
@@ -31,12 +32,17 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 80),
+            const SizedBox(height: 70),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SvgPicture.asset(
+                    'assets/images/barcelona_comerc_logo.svg',
+                    width: 250,
+                  ),
+                  const SizedBox(height: 25),
                   Text(
                     "Bienvenido",
                     style: GoogleFonts.notoSerif(
