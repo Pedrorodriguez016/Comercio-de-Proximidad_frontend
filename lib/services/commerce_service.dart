@@ -4,10 +4,20 @@ import 'api_client.dart';
 class CommerceService {
   final Dio _dio = ApiClient().dio;
 
-  Future<List<dynamic>> searchCommerces({String? queryName, String? type, String? token}) async {
+  Future<List<dynamic>> searchCommerces({
+    String? queryName,
+    String? type,
+    String? token,
+    int skip = 0,
+    int limit = 15,
+  }) async {
     try {
       final response = await _dio.post(
         '/comercios/',
+        queryParameters: {
+          'skip': skip,
+          'limit': limit,
+        },
         data: {
           "filters": {
             if (queryName != null && queryName.isNotEmpty) "name": queryName,

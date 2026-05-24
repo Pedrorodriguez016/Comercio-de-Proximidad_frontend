@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../controller/commerce_controller.dart';
 import '../theme/app_theme.dart';
+import 'commerce_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -13,16 +14,31 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     // Forzamos la búsqueda inicial al cargar la pantalla por primera vez
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final commerceController = context.read<CommerceController>();
       commerceController.searchCommerces(); // Carga inicial (trae todo)
       _searchController.text = commerceController.searchQuery;
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<CommerceController>().loadMoreCommerces();
+    }
   }
 
   @override
@@ -126,10 +142,20 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildResultsList(List<dynamic> commerces) {
+    final commerceController = context.watch<CommerceController>();
     return ListView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-      itemCount: commerces.length,
+      itemCount: commerces.length + (commerceController.hasMore ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index == commerces.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.0),
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          );
+        }
         final commerce = commerces[index];
         return _buildCommerceCard(commerce);
       },
@@ -137,69 +163,79 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildCommerceCard(dynamic commerce) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CommerceDetailScreen(commerce: commerce),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.tertiary.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(18),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(
-              _getCategoryIcon(commerce['type'] ?? ''),
-              color: AppColors.primary,
-              size: 32,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.tertiary.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(
+                _getCategoryIcon(commerce['type'] ?? ''),
+                color: AppColors.primary,
+                size: 32,
+              ),
             ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  commerce['name'] ?? 'Sin nombre',
-                  style: GoogleFonts.manrope(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    commerce['type'] ?? 'General',
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    commerce['name'] ?? 'Sin nombre',
                     style: GoogleFonts.manrope(
-                      fontSize: 12,
-                      color: AppColors.secondary,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: AppColors.onBackground,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      commerce['type'] ?? 'General',
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.neutral),
-        ],
+            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.neutral),
+          ],
+        ),
       ),
     );
   }
