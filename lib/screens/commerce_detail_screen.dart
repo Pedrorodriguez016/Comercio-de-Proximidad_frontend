@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../widgets/commerce_info_card.dart';
 import '../widgets/commerce_detail_row.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class CommerceDetailScreen extends StatelessWidget {
   final dynamic commerce;
@@ -231,6 +233,41 @@ class CommerceDetailScreen extends StatelessWidget {
                         CommerceDetailRow(icon: Icons.map, label: "Dirección", value: address),
                         CommerceDetailRow(icon: Icons.holiday_village, label: "Barrio", value: neighborhood),
                         CommerceDetailRow(icon: Icons.domain, label: "Distrito", value: district),
+                        if (lat != null && lng != null && lat != 0.0 && lng != 0.0) ...[
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 200,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: FlutterMap(
+                                options: MapOptions(
+                                  initialCenter: LatLng(lat, lng),
+                                  initialZoom: 15.0,
+                                ),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    userAgentPackageName: 'com.example.app_tfg',
+                                  ),
+                                  MarkerLayer(
+                                    markers: [
+                                      Marker(
+                                        point: LatLng(lat, lng),
+                                        width: 40,
+                                        height: 40,
+                                        child: Icon(
+                                          Icons.location_on,
+                                          color: themeColor,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -268,9 +305,9 @@ class CommerceDetailScreen extends StatelessWidget {
                               ),
                             ),
                             onPressed: () => _openInGoogleMaps(context),
-                            icon: const Icon(Icons.map),
+                            icon: const Icon(Icons.navigation),
                             label: Text(
-                              "Ver en Google Maps",
+                              "Abrir en Google Maps",
                               style: GoogleFonts.manrope(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
