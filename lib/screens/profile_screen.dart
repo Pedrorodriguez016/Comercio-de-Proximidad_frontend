@@ -18,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          "Mi Perfil",
+          "El meu Perfil",
           style: GoogleFonts.notoSerif(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -75,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                userData['name'] ?? 'Usuario Demo',
+                userData['name'] ?? 'Usuari Demo',
                 style: GoogleFonts.notoSerif(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class ProfileScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "PUNTOS ACUMULADOS",
+                              "PUNTS ACUMULATS",
                               style: GoogleFonts.manrope(
                                 color: AppColors.tertiary.withOpacity(0.7),
                                 fontSize: 12,
@@ -157,7 +157,7 @@ class ProfileScreen extends StatelessWidget {
                           Navigator.pushNamed(context, '/user-pass'),
                       icon: const Icon(Icons.qr_code, color: AppColors.primary),
                       label: Text(
-                        "VER MI PASE",
+                        "VEURE EL MEU PAS",
                         style: GoogleFonts.manrope(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -181,22 +181,22 @@ class ProfileScreen extends StatelessWidget {
               // Opciones de Menú
               ProfileMenuItem(
                 icon: Icons.history,
-                title: "Historial de compras",
+                title: "Historial de compres",
               ),
               ProfileMenuItem(
                 icon: Icons.notifications_none,
-                title: "Notificaciones",
+                title: "Notificacions",
               ),
               ProfileMenuItem(
                 icon: Icons.settings_outlined,
-                title: "Configuración",
+                title: "Configuració",
               ),
               const SizedBox(height: 16),
 
               // Botón de Cerrar Sesión
               ProfileMenuItem(
                 icon: Icons.logout,
-                title: "Cerrar Sesión",
+                title: "Tancar sessió",
                 iconColor: Colors.red,
                 textColor: Colors.red,
                 onTap: () {

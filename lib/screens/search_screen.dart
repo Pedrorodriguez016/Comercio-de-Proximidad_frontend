@@ -74,7 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "Buscar Comercios",
+            "Buscar Comerços",
             style: GoogleFonts.notoSerif(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
           controller: _searchController,
           onSubmitted: (value) => controller.searchCommerces(query: value, category: ''),
           decoration: InputDecoration(
-            hintText: "Nombre del comercio...",
+            hintText: "Nom del comerç...",
             hintStyle: GoogleFonts.manrope(color: AppColors.neutral.withOpacity(0.5)),
             prefixIcon: const Icon(Icons.search, color: AppColors.primary),
             border: InputBorder.none,
@@ -130,7 +130,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Row(
         children: [
           Chip(
-            label: Text(controller.selectedCategory),
+            label: Text(_getTranslatedCategory(controller.selectedCategory)),
             onDeleted: () => controller.clearFilters(),
             backgroundColor: AppColors.secondary.withOpacity(0.1),
             labelStyle: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold),
@@ -207,7 +207,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    commerce['name'] ?? 'Sin nombre',
+                    commerce['name'] ?? 'Sense nom',
                     style: GoogleFonts.manrope(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -222,7 +222,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      commerce['type'] ?? 'General',
+                      _getTranslatedCategory(commerce['type'] ?? 'General'),
                       style: GoogleFonts.manrope(
                         fontSize: 12,
                         color: AppColors.secondary,
@@ -248,7 +248,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Icon(Icons.search_off, size: 80, color: AppColors.neutral.withOpacity(0.3)),
           const SizedBox(height: 20),
           Text(
-            "No hemos encontrado nada",
+            "No hem trobat res",
             style: GoogleFonts.manrope(
               fontSize: 18,
               color: AppColors.neutral,
@@ -258,6 +258,18 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
     );
+  }
+
+  String _getTranslatedCategory(String type) {
+    switch (type.toLowerCase()) {
+      case 'alimentación': return 'Alimentació';
+      case 'ropa': return 'Roba';
+      case 'cultura': return 'Cultura';
+      case 'servicios': return 'Serveis';
+      case 'restauración': return 'Restauració';
+      case 'salud': return 'Salut';
+      default: return type;
+    }
   }
 
   IconData _getCategoryIcon(String type) {

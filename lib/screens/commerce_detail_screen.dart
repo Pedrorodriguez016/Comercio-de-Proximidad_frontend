@@ -28,7 +28,7 @@ class CommerceDetailScreen extends StatelessWidget {
       url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(query)}');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hay información de ubicación disponible')),
+        const SnackBar(content: Text('No hi ha informació de la ubicació disponible')),
       );
       return;
     }
@@ -41,7 +41,7 @@ class CommerceDetailScreen extends StatelessWidget {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo abrir el mapa: $e')),
+        SnackBar(content: Text("No s'ha pogut obrir el mapa: $e")),
       );
     }
   }
@@ -70,11 +70,11 @@ class CommerceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String name = commerce['name'] ?? 'Comercio sin nombre';
+    final String name = commerce['name'] ?? 'Comerç sense nom';
     final String type = commerce['type'] ?? 'General';
-    final String address = commerce['address'] ?? 'Dirección no disponible';
-    final String neighborhood = commerce['neighborhood'] ?? 'Barrio no disponible';
-    final String district = commerce['district'] ?? 'Distrito no disponible';
+    final String address = commerce['address'] ?? 'Adreça no disponible';
+    final String neighborhood = commerce['neighborhood'] ?? 'Barri no disponible';
+    final String district = commerce['district'] ?? 'Districte no disponible';
     final double? lat = commerce['latitude'] is num ? (commerce['latitude'] as num).toDouble() : null;
     final double? lng = commerce['longitude'] is num ? (commerce['longitude'] as num).toDouble() : null;
 
@@ -183,7 +183,7 @@ class CommerceDetailScreen extends StatelessWidget {
                               Icon(_getCategoryIcon(type), size: 16, color: themeColor),
                               const SizedBox(width: 6),
                               Text(
-                                type,
+                                _getTranslatedCategory(type),
                                 style: GoogleFonts.manrope(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
@@ -200,7 +200,7 @@ class CommerceDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            "Abierto",
+                            "Obert",
                             style: GoogleFonts.manrope(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -226,13 +226,13 @@ class CommerceDetailScreen extends StatelessWidget {
                     
                     // Tarjeta: Información de Dirección
                     CommerceInfoCard(
-                      title: "Ubicación",
+                      title: "Ubicació",
                       icon: Icons.location_on_outlined,
                       iconColor: AppColors.secondary,
                       children: [
-                        CommerceDetailRow(icon: Icons.map, label: "Dirección", value: address),
-                        CommerceDetailRow(icon: Icons.holiday_village, label: "Barrio", value: neighborhood),
-                        CommerceDetailRow(icon: Icons.domain, label: "Distrito", value: district),
+                        CommerceDetailRow(icon: Icons.map, label: "Adreça", value: address),
+                        CommerceDetailRow(icon: Icons.holiday_village, label: "Barri", value: neighborhood),
+                        CommerceDetailRow(icon: Icons.domain, label: "Districte", value: district),
                         if (lat != null && lng != null && lat != 0.0 && lng != 0.0) ...[
                           const SizedBox(height: 15),
                           SizedBox(
@@ -274,17 +274,17 @@ class CommerceDetailScreen extends StatelessWidget {
                     
                     // Tarjeta: Coordenadas e Integración del Mapa
                     CommerceInfoCard(
-                      title: "Detalles del Comercio",
+                      title: "Detalls del Comerç",
                       icon: Icons.info_outline,
                       iconColor: AppColors.primary,
                       children: [
                         CommerceDetailRow(
                           icon: Icons.person_outline, 
-                          label: "Propietario", 
-                          value: commerce['owner'] != null ? "Asociado a la red local" : "Pendiente de registro"
+                          label: "Propietari", 
+                          value: commerce['owner'] != null ? "Associat a la xarxa local" : "Pendent de registre"
                         ),
                         if (lat != null && lng != null && lat != 0.0 && lng != 0.0) ...[
-                          CommerceDetailRow(icon: Icons.explore_outlined, label: "Coordenadas", value: "${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}"),
+                          CommerceDetailRow(icon: Icons.explore_outlined, label: "Coordenades", value: "${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}"),
                         ],
                       ],
                     ),
@@ -307,7 +307,7 @@ class CommerceDetailScreen extends StatelessWidget {
                             onPressed: () => _openInGoogleMaps(context),
                             icon: const Icon(Icons.navigation),
                             label: Text(
-                              "Abrir en Google Maps",
+                              "Obrir a Google Maps",
                               style: GoogleFonts.manrope(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -328,4 +328,15 @@ class CommerceDetailScreen extends StatelessWidget {
     );
   }
 
+  String _getTranslatedCategory(String type) {
+    switch (type.toLowerCase()) {
+      case 'alimentación': return 'Alimentació';
+      case 'ropa': return 'Roba';
+      case 'cultura': return 'Cultura';
+      case 'servicios': return 'Serveis';
+      case 'restauración': return 'Restauració';
+      case 'salud': return 'Salut';
+      default: return type;
+    }
+  }
 }

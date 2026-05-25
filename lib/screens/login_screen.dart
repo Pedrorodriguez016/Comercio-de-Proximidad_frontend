@@ -44,7 +44,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                   Text(
-                    "Bienvenido",
+                    "Benvingut/da",
                     style: GoogleFonts.notoSerif(
                       color: AppColors.tertiary,
                       fontSize: 40,
@@ -53,7 +53,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Comercio de Proximidad",
+                    "Comerç de Proximitat",
                     style: GoogleFonts.manrope(
                       color: AppColors.tertiary.withOpacity(0.8),
                       fontSize: 18,
@@ -93,7 +93,7 @@ class LoginScreen extends StatelessWidget {
                               TextField(
                                 controller: _emailController,
                                 decoration: const InputDecoration(
-                                  hintText: "Correo electrónico",
+                                  hintText: "Correu electrònic",
                                   prefixIcon: Icon(
                                     Icons.email_outlined,
                                     color: AppColors.primary,
@@ -105,7 +105,7 @@ class LoginScreen extends StatelessWidget {
                                 controller: _passwordController,
                                 obscureText: true,
                                 decoration: const InputDecoration(
-                                  hintText: "Contraseña",
+                                  hintText: "Contrasenya",
                                   prefixIcon: Icon(
                                     Icons.lock_outline,
                                     color: AppColors.primary,
@@ -134,7 +134,7 @@ class LoginScreen extends StatelessWidget {
                                   color: Colors.white,
                                 )
                               : Text(
-                                  "Iniciar Sesión",
+                                  "Iniciar sessió",
                                   style: GoogleFonts.manrope(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -145,7 +145,7 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 20),
                         Center(
                           child: Text(
-                            "O también puedes",
+                            "O també pots",
                             style: GoogleFonts.manrope(color: AppColors.neutral, fontSize: 12),
                           ),
                         ),
@@ -154,7 +154,7 @@ class LoginScreen extends StatelessWidget {
                           onPressed: () => authController.loginSameDevice(),
                           icon: const Icon(Icons.fingerprint, color: AppColors.primary),
                           label: Text(
-                            "Entrar con Identidad Digital",
+                            "Entrar amb Identitat Digital",
                             style: GoogleFonts.manrope(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
@@ -172,7 +172,7 @@ class LoginScreen extends StatelessWidget {
                         TextButton(
                           onPressed: () {},
                           child: Text(
-                            "¿Olvidaste tu contraseña?",
+                            "Has oblidat la contrasenya?",
                             style: GoogleFonts.manrope(
                               color: AppColors.secondary,
                             ),
@@ -183,7 +183,7 @@ class LoginScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "¿No tienes cuenta? ",
+                              "No tens un compte? ",
                               style: GoogleFonts.manrope(
                                 color: AppColors.neutral,
                               ),
@@ -191,7 +191,7 @@ class LoginScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () => Navigator.pushNamed(context, '/register'),
                               child: Text(
-                                "Regístrate",
+                                "Registra't",
                                 style: GoogleFonts.manrope(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.bold,

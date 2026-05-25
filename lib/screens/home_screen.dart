@@ -70,7 +70,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Hola, ${authController.userData['name'] ?? 'Usuario'}",
+              "Hola, ${authController.userData['name'] ?? 'Usuari'}",
               style: GoogleFonts.notoSerif(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "¿Qué comercio quieres visitar hoy?",
+              "Quin comerç vols visitar avui?",
               style: GoogleFonts.manrope(
                 fontSize: 16,
                 color: AppColors.neutral,
@@ -88,8 +88,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 30),
             
             const FeaturedBanner(
-              title: "Mercados Locales",
-              subtitle: "Descubre productos frescos cerca de ti",
+              title: "Mercats Locals",
+              subtitle: "Descobreix productes frescos a prop teu",
               imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
             ),
 
@@ -98,7 +98,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Categorías",
+                  "Categories",
                   style: GoogleFonts.notoSerif(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -108,7 +108,7 @@ class HomeScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () => navController.changeIndex(1),
                   child: Text(
-                    "Ver todas",
+                    "Veure-ho tot",
                     style: GoogleFonts.manrope(color: AppColors.secondary),
                   ),
                 ),
@@ -121,25 +121,25 @@ class HomeScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   CategoryCard(
-                    title: "Alimentación", 
+                    title: "Alimentació", 
                     icon: Icons.restaurant, 
                     color: AppColors.primary,
                     onTap: () => onCategoryTap("Alimentación"),
                   ),
                   CategoryCard(
-                    title: "Ropa", 
+                    title: "Roba", 
                     icon: Icons.shopping_bag, 
                     color: AppColors.secondary,
                     onTap: () => onCategoryTap("Ropa"),
                   ),
                   CategoryCard(
-                    title: "Restauración", 
+                    title: "Restauració", 
                     icon: Icons.coffee, 
                     color: AppColors.neutral,
                     onTap: () => onCategoryTap("Restauración"),
                   ),
                   CategoryCard(
-                    title: "Servicios", 
+                    title: "Serveis", 
                     icon: Icons.build, 
                     color: AppColors.primary,
                     onTap: () => onCategoryTap("Servicios"),

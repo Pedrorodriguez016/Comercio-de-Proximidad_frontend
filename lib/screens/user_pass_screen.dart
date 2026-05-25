@@ -13,7 +13,7 @@ class UserPassScreen extends StatelessWidget {
     final authController = context.watch<AuthController>();
     final userData = authController.userData;
     final String userId = userData['_id'] ?? userData['id'] ?? 'Unknown ID';
-    final String userName = userData['name'] ?? 'Usuario';
+    final String userName = userData['name'] ?? 'Usuari';
     final String userEmail = userData['email'] ?? '';
     final int userPoints = userData['points'] is int 
         ? userData['points'] 
@@ -22,7 +22,7 @@ class UserPassScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text("Mi Pase Digital", style: GoogleFonts.notoSerif(fontWeight: FontWeight.bold)),
+        title: Text("El meu Pas Digital", style: GoogleFonts.notoSerif(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -102,8 +102,8 @@ class UserPassScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildStatItem("MIS PUNTOS", "$userPoints pts"),
-                              _buildStatItem("ESTADO", "Activo"),
+                              _buildStatItem("ELS MEUS PUNTS", "$userPoints pts"),
+                              _buildStatItem("ESTAT", "Actiu"),
                             ],
                           ),
                         ],

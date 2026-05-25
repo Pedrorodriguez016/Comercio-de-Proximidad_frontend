@@ -15,7 +15,7 @@ class WalletCardScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          "Fidelización",
+          "Fidelització",
           style: GoogleFonts.notoSerif(fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.primary,
@@ -60,7 +60,7 @@ class WalletCardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 40),
                   Text(
-                    authController.userData['name']?.toUpperCase() ?? "USUARIO",
+                    authController.userData['name']?.toUpperCase() ?? "USUARI",
                     style: GoogleFonts.manrope(
                       color: Colors.white,
                       fontSize: 18,
@@ -89,7 +89,7 @@ class WalletCardScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          "PUNTOS: ${authController.userData['points'] ?? 0}",
+                          "PUNTS: ${authController.userData['points'] ?? 0}",
                           style: GoogleFonts.manrope(
                             color: Colors.white,
                             fontSize: 12,
@@ -104,7 +104,7 @@ class WalletCardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             Text(
-              "¡Bienvenido!",
+              "Benvingut/da!",
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSerif(
                 fontSize: 24,
@@ -114,7 +114,7 @@ class WalletCardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "Ya formas parte de nuestra red de comercio local. Acumula puntos con cada compra y canjéalos por beneficios exclusivos.",
+              "Ja formes part de la nostra xarxa de comerç local. Acumula punts amb cada compra i canvia'ls per beneficis exclusius.",
               textAlign: TextAlign.center,
               style: GoogleFonts.manrope(
                 fontSize: 16,
@@ -133,7 +133,7 @@ class WalletCardScreen extends StatelessWidget {
                 ),
               ),
               child: Text(
-                "COMENZAR",
+                "COMENÇAR",
                 style: GoogleFonts.manrope(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

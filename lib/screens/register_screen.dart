@@ -40,7 +40,7 @@ class RegisterScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Crear Cuenta",
+                    "Crear compte",
                     style: GoogleFonts.notoSerif(
                       color: Colors.white,
                       fontSize: 40,
@@ -49,7 +49,7 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Únete a nuestra comunidad",
+                    "Uneix-te a la nostra comunitat",
                     style: GoogleFonts.manrope(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 18,
@@ -91,7 +91,7 @@ class RegisterScreen extends StatelessWidget {
                               TextField(
                                 controller: _nameController,
                                 decoration: const InputDecoration(
-                                  hintText: "Nombre",
+                                  hintText: "Nom",
                                   prefixIcon: Icon(Icons.person_outline, color: AppColors.secondary),
                                 ),
                               ),
@@ -99,7 +99,7 @@ class RegisterScreen extends StatelessWidget {
                               TextField(
                                 controller: _surnamesController,
                                 decoration: const InputDecoration(
-                                  hintText: "Apellidos",
+                                  hintText: "Cognoms",
                                   prefixIcon: Icon(Icons.person_outline, color: AppColors.secondary),
                                 ),
                               ),
@@ -107,7 +107,7 @@ class RegisterScreen extends StatelessWidget {
                               TextField(
                                 controller: _emailController,
                                 decoration: const InputDecoration(
-                                  hintText: "Correo electrónico",
+                                  hintText: "Correu electrònic",
                                   prefixIcon: Icon(Icons.email_outlined, color: AppColors.secondary),
                                 ),
                               ),
@@ -116,7 +116,7 @@ class RegisterScreen extends StatelessWidget {
                                 controller: _passwordController,
                                 obscureText: true,
                                 decoration: const InputDecoration(
-                                  hintText: "Contraseña",
+                                  hintText: "Contrasenya",
                                   prefixIcon: Icon(Icons.lock_outline, color: AppColors.secondary),
                                 ),
                               ),
@@ -147,7 +147,7 @@ class RegisterScreen extends StatelessWidget {
                           child: authController.isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : Text(
-                                "Registrarse",
+                                "Registrar-se",
                                 style: GoogleFonts.manrope(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ class RegisterScreen extends StatelessWidget {
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text(
-                            "¿Ya tienes cuenta? Inicia sesión",
+                            "Ja tens un compte? Inicia sessió",
                             style: GoogleFonts.manrope(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
