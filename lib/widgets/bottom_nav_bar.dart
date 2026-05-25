@@ -23,6 +23,7 @@ class MainBottomNavBar extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inici"),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: "Buscar"),
+        BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), label: "Compra"),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
       ],
     );

@@ -10,6 +10,7 @@ import '../widgets/featured_banner.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
+import 'purchase_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,6 +26,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           _buildHomeContent(context),
           const SearchScreen(),
+          const PurchaseScreen(),
           ProfileScreen(),
         ],
       ),
