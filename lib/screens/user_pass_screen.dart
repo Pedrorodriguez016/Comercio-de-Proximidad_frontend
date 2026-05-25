@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../controller/auth_controller.dart';
 import '../theme/app_theme.dart';
 
@@ -123,9 +124,9 @@ class UserPassScreen extends StatelessWidget {
                       ],
                     ),
 
-                    // Parte inferior: QR
+                    // Parte inferior: QR i botó Google Wallet
                     Container(
-                      padding: const EdgeInsets.all(40),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
                       child: Column(
                         children: [
                           QrImageView(
@@ -140,6 +141,45 @@ class UserPassScreen extends StatelessWidget {
                             dataModuleStyle: const QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.square,
                               color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          GestureDetector(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("S'està afegint a Google Wallet..."),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: Colors.white24, width: 1.5),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/google-wallet.svg',
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    "Afegeix a Google Wallet",
+                                    style: GoogleFonts.manrope(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
