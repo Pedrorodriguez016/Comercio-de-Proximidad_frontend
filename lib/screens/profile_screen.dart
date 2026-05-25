@@ -5,6 +5,7 @@ import '../controller/auth_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/profile_stat_item.dart';
 import '../widgets/profile_menu_item.dart';
+import 'purchase_history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -182,6 +183,10 @@ class ProfileScreen extends StatelessWidget {
               ProfileMenuItem(
                 icon: Icons.history,
                 title: "Historial de compres",
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PurchaseHistoryScreen()),
+                ),
               ),
               ProfileMenuItem(
                 icon: Icons.notifications_none,

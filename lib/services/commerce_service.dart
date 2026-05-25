@@ -41,4 +41,17 @@ class CommerceService {
       return [];
     }
   }
+
+  Future<Map<String, dynamic>?> getCommerceById(String id) async {
+    try {
+      final response = await _dio.get('/comercio/$id');
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      print("Error getting commerce by id $id: $e");
+      return null;
+    }
+  }
 }

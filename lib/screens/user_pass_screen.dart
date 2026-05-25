@@ -40,6 +40,7 @@ class UserPassScreen extends StatelessWidget {
               // El "Pase" o Tarjeta
               Container(
                 width: double.infinity,
+                constraints: const BoxConstraints(maxWidth: 420), // Ancho máximo ideal para web y tablets
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(32),
@@ -54,60 +55,86 @@ class UserPassScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(30),
+                      height: 220,
                       decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primary, Color(0xFF3D5F4D)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/faro_calella.jpg'),
+                          fit: BoxFit.cover,
+                          alignment: Alignment(0.0, -0.15), // Encuadra mejor la parte superior y cuerpo del faro
                         ),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      userName.toUpperCase(),
-                                      style: GoogleFonts.manrope(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
+                      child: Container(
+                        padding: const EdgeInsets.all(30),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0x99000000), // Negro al 60% abajo para dar contraste a los puntos
+                              Color(0x33000000), // Negro al 20% arriba para dejar ver el faro y el cielo natural
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        userName.toUpperCase(),
+                                        style: GoogleFonts.manrope(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      userEmail,
-                                      style: GoogleFonts.manrope(
-                                        color: Colors.white70,
-                                        fontSize: 14,
+                                      Text(
+                                        userEmail,
+                                        style: GoogleFonts.manrope(
+                                          color: Colors.white70,
+                                          fontSize: 14,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const Icon(Icons.qr_code_2, color: AppColors.secondary, size: 40),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem("ELS MEUS PUNTS", "$userPoints pts"),
-                              _buildStatItem("ESTAT", "Actiu"),
-                            ],
-                          ),
-                        ],
+                                Text(
+                                  "CALELLA",
+                                  style: GoogleFonts.manrope(
+                                    color: AppColors.tertiary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildStatItem("ELS MEUS PUNTS", "$userPoints pts"),
+                                _buildStatItem("ESTAT", "Actiu"),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Stack(

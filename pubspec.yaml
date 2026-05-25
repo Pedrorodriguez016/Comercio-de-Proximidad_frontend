@@ -71,6 +71,7 @@ flutter:
   assets:
     - assets/images/barcelona_comerc_logo.svg
     - assets/images/google-wallet.svg
+    - assets/images/faro_calella.jpg
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

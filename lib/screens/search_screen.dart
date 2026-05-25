@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../controller/commerce_controller.dart';
+import '../controller/navigation_controller.dart';
 import '../theme/app_theme.dart';
 import 'commerce_detail_screen.dart';
 
@@ -20,10 +21,9 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Forzamos la búsqueda inicial al cargar la pantalla por primera vez
+    // Sincronizamos el texto de búsqueda inicial sin disparar llamada de red
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final commerceController = context.read<CommerceController>();
-      commerceController.searchCommerces(); // Carga inicial (trae todo)
       _searchController.text = commerceController.searchQuery;
     });
   }
@@ -44,6 +44,18 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final commerceController = context.watch<CommerceController>();
+    final navController = context.watch<NavigationController>();
+
+    // Cargar comercios de forma perezosa solo cuando la pantalla es visible (index 1)
+    if (navController.currentIndex == 1 &&
+        commerceController.commerces.isEmpty &&
+        !commerceController.isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          commerceController.searchCommerces();
+        }
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
