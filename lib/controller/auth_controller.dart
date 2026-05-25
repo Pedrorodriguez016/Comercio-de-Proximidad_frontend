@@ -139,6 +139,9 @@ class AuthController with ChangeNotifier {
     String surnames,
     String email,
     String password,
+    String address,
+    String city,
+    String postalCode,
   ) async {
     try {
       _isLoading = true;
@@ -148,6 +151,9 @@ class AuthController with ChangeNotifier {
         'surnames': surnames,
         'email': email,
         'password': password,
+        'address': address,
+        'city': city,
+        'postalCode': postalCode,
       });
       return response.statusCode == 200;
     } catch (e) {

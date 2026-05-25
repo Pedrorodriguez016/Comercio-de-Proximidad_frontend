@@ -13,12 +13,20 @@ class UserPassScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authController = context.watch<AuthController>();
     final userData = authController.userData;
+    
+    // Read the user's actual registered city
+    final String registeredCity = userData['city'] ?? 'Calella';
+
     final String userId = userData['_id'] ?? userData['id'] ?? 'Unknown ID';
     final String userName = userData['name'] ?? 'Usuari';
     final String userEmail = userData['email'] ?? '';
     final int userPoints = userData['points'] is int 
         ? userData['points'] 
         : int.tryParse(userData['points']?.toString() ?? '0') ?? 0;
+
+    final String bgImage = registeredCity.toLowerCase() == 'barcelona'
+        ? 'assets/images/park_guell.jpg'
+        : 'assets/images/faro_calella.jpg';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -56,13 +64,13 @@ class UserPassScreen extends StatelessWidget {
                   children: [
                     Container(
                       height: 220,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage('assets/images/faro_calella.jpg'),
+                          image: AssetImage(bgImage),
                           fit: BoxFit.cover,
-                          alignment: Alignment(0.0, -0.15), // Encuadra mejor la parte superior y cuerpo del faro
+                          alignment: const Alignment(0.0, -0.15), // Encuadra mejor la parte superior y cuerpo del faro
                         ),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),
                         ),
@@ -116,7 +124,7 @@ class UserPassScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  "CALELLA",
+                                  registeredCity.toUpperCase(),
                                   style: GoogleFonts.manrope(
                                     color: AppColors.tertiary,
                                     fontSize: 16,

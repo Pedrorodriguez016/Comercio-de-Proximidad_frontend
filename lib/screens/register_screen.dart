@@ -9,6 +9,9 @@ class RegisterScreen extends StatelessWidget {
   final TextEditingController _surnamesController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _postalCodeController = TextEditingController();
 
   RegisterScreen({super.key});
 
@@ -120,6 +123,30 @@ class RegisterScreen extends StatelessWidget {
                                   prefixIcon: Icon(Icons.lock_outline, color: AppColors.secondary),
                                 ),
                               ),
+                              const SizedBox(height: 15),
+                              TextField(
+                                controller: _addressController,
+                                decoration: const InputDecoration(
+                                  hintText: "Adreça",
+                                  prefixIcon: Icon(Icons.home_outlined, color: AppColors.secondary),
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              TextField(
+                                controller: _cityController,
+                                decoration: const InputDecoration(
+                                  hintText: "Ciutat",
+                                  prefixIcon: Icon(Icons.location_city_outlined, color: AppColors.secondary),
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              TextField(
+                                controller: _postalCodeController,
+                                decoration: const InputDecoration(
+                                  hintText: "Codi postal",
+                                  prefixIcon: Icon(Icons.local_post_office_outlined, color: AppColors.secondary),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -128,11 +155,25 @@ class RegisterScreen extends StatelessWidget {
                           onPressed: authController.isLoading 
                             ? null 
                             : () async {
+                                if (_nameController.text.trim().isEmpty ||
+                                    _emailController.text.trim().isEmpty ||
+                                    _passwordController.text.trim().isEmpty ||
+                                    _addressController.text.trim().isEmpty ||
+                                    _cityController.text.trim().isEmpty ||
+                                    _postalCodeController.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Si us plau, omple tots els camps")),
+                                  );
+                                  return;
+                                }
                                 final success = await authController.register(
-                                  _nameController.text, 
-                                  _surnamesController.text, 
-                                  _emailController.text, 
-                                  _passwordController.text
+                                  _nameController.text.trim(), 
+                                  _surnamesController.text.trim(), 
+                                  _emailController.text.trim(), 
+                                  _passwordController.text.trim(),
+                                  _addressController.text.trim(),
+                                  _cityController.text.trim(),
+                                  _postalCodeController.text.trim(),
                                 );
                                 if (success && context.mounted) {
                                   Navigator.pop(context);
