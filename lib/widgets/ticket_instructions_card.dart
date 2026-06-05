@@ -53,7 +53,7 @@ class TicketInstructionsCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "Puja una foto del teu tiquet de compra dels comerços de proximitat associats. Un cop verificat el tiquet pel comerç, sumarem els punts directament al teu perfil per aconseguir premis i descomptes.",
+            "Puja una foto del teu tiquet de compra. Un cop verificat el tiquet, sumarem els punts directament al teu perfil.",
             style: GoogleFonts.manrope(
               fontSize: 14,
               color: AppColors.neutral,

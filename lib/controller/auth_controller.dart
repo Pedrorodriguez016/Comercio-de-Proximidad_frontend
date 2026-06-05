@@ -59,6 +59,7 @@ class AuthController with ChangeNotifier {
 
         await TokenManager.saveTokens(
           accessToken: _userToken,
+          refreshToken: tokens['refresh_token'],
           userId: _userData['_id'] ?? _userData['id'],
         );
         print("AUTH_CONTROLLER: Sesión guardada y login marcado como TRUE");
@@ -119,6 +120,7 @@ class AuthController with ChangeNotifier {
 
         await TokenManager.saveTokens(
           accessToken: _userToken,
+          refreshToken: response.data['refresh_token'],
           userId: _userData['_id'] ?? _userData['id'],
         );
 

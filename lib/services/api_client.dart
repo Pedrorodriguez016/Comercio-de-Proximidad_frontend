@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import '../utils/token_manager.dart';
-import '../main.dart'; // Para el navigatorKey
 
 class ApiClient {
   late Dio dio;
@@ -10,7 +9,7 @@ class ApiClient {
 
   ApiClient._internal() {
     dio = Dio(BaseOptions(
-      baseUrl: 'http://192.168.0.25:8005',
+      baseUrl: 'http://192.168.0.13:8005',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ));
@@ -71,6 +70,40 @@ class ApiClient {
   }
 
   Future<bool> _handleTokenRefresh() async {
-    return false; 
+    try {
+      final refreshToken = await TokenManager.getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
+        return false;
+      }
+
+      // Creamos una instancia de Dio limpia para el refresh y evitar bucles
+      final refreshDio = Dio(BaseOptions(
+        baseUrl: 'http://192.168.0.13:8005',
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
+
+      final response = await refreshDio.post(
+        '/auth/refresh',
+        data: {'refresh_token': refreshToken},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final newAccessToken = response.data['access_token'];
+        final newRefreshToken = response.data['refresh_token'];
+        if (newAccessToken != null && newRefreshToken != null) {
+          await TokenManager.saveTokens(
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          );
+          print("API_CLIENT: Token refreshed con éxito");
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print("API_CLIENT: Error en _handleTokenRefresh -> $e");
+      return false;
+    }
   }
 }
