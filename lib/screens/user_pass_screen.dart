@@ -165,7 +165,7 @@ class UserPassScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           QrImageView(
-                            data: userId,
+                            data: "MERCATUS:$userId|$userName|$userEmail",
                             version: QrVersions.auto,
                             size: 200.0,
                             foregroundColor: AppColors.primary,

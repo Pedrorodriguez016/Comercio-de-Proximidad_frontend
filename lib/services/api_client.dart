@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../main.dart';
 import '../utils/token_manager.dart';
 
 class ApiClient {
@@ -9,7 +11,7 @@ class ApiClient {
 
   ApiClient._internal() {
     dio = Dio(BaseOptions(
-      baseUrl: 'http://192.168.0.13:8005',
+      baseUrl: dotenv.env['API_URL'] ?? 'http://172.20.10.2:8005',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ));
@@ -54,14 +56,12 @@ class ApiClient {
             return handler.resolve(response);
           } else {
             print("API_CLIENT: Error 401 detectado. Ignorando auto-logout por ahora...");
-          
-          /* 
-          // Si quieres que te eche al login en el futuro, descomenta esto:
+        
           await TokenManager.clearTokens();
           if (navigatorKey.currentState != null) {
             navigatorKey.currentState!.pushNamedAndRemoveUntil('/login', (route) => false);
           }
-          */
+
           }
         }
         return handler.next(e);
@@ -78,7 +78,7 @@ class ApiClient {
 
       // Creamos una instancia de Dio limpia para el refresh y evitar bucles
       final refreshDio = Dio(BaseOptions(
-        baseUrl: 'http://192.168.0.13:8005',
+        baseUrl: dotenv.env['API_URL'] ?? 'http://172.20.10.2:8005',
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
       ));
