@@ -11,6 +11,7 @@ import 'theme/app_theme.dart';
 import 'controller/auth_controller.dart';
 import 'controller/navigation_controller.dart';
 import 'controller/commerce_controller.dart';
+import 'controller/purchase_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => NavigationController()),
         ChangeNotifierProvider(create: (_) => CommerceController()),
+        ChangeNotifierProvider(create: (_) => PurchaseController()),
       ],
       child: const MyApp(),
     ),
@@ -43,9 +45,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/home': (context) => HomeScreen(),
-        '/wallet-card': (context) => const WalletCardScreen(),
-        '/user-pass': (context) => UserPassScreen(),
+        '/home': (context) => const AuthGuard(child: HomeScreen()),
+        '/wallet-card': (context) => const AuthGuard(child: WalletCardScreen()),
+        '/user-pass': (context) => const AuthGuard(child: UserPassScreen()),
       },
     );
   }
@@ -68,8 +70,29 @@ class AuthWrapper extends StatelessWidget {
       return LoginScreen();
     }
 
-
     // Por defecto, ir a Home
-    return HomeScreen();
+    return const HomeScreen();
+  }
+}
+
+class AuthGuard extends StatelessWidget {
+  final Widget child;
+  const AuthGuard({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthController>();
+
+    // Solo mostrar Splash durante la inicialización (checkLoginStatus)
+    if (auth.isInitializing) {
+      return const SplashScreen();
+    }
+
+    // Si no está logueado, ir al Login
+    if (!auth.isLoggedIn) {
+      return LoginScreen();
+    }
+
+    return child;
   }
 }
