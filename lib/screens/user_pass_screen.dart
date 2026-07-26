@@ -4,14 +4,45 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../controller/auth_controller.dart';
+import '../controller/commerce_controller.dart';
 import '../theme/app_theme.dart';
 
-class UserPassScreen extends StatelessWidget {
+class UserPassScreen extends StatefulWidget {
   const UserPassScreen({super.key});
+
+  @override
+  State<UserPassScreen> createState() => _UserPassScreenState();
+}
+
+class _UserPassScreenState extends State<UserPassScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthController>();
+      final email = auth.userData['email'] ?? auth.userData['preferred_username'];
+      final customerId = auth.userData['odoo_partner_id'] ?? auth.userData['customer_id'] ?? auth.userData['odoo_id'];
+      
+      int? odooId;
+      if (customerId != null) {
+        if (customerId is int) {
+          odooId = customerId;
+        } else {
+          odooId = int.tryParse(customerId.toString());
+        }
+      }
+
+      context.read<CommerceController>().fetchLoyaltyPoints(
+        customerId: odooId,
+        email: email,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final authController = context.watch<AuthController>();
+    final commerceController = context.watch<CommerceController>();
     final userData = authController.userData;
     
     // Read the user's actual registered city
@@ -20,9 +51,8 @@ class UserPassScreen extends StatelessWidget {
     final String userId = userData['_id'] ?? userData['id'] ?? 'Unknown ID';
     final String userName = userData['name'] ?? 'Usuari';
     final String userEmail = userData['email'] ?? '';
-    final int userPoints = userData['points'] is int 
-        ? userData['points'] 
-        : int.tryParse(userData['points']?.toString() ?? '0') ?? 0;
+    
+    final double userPoints = commerceController.loyaltyPoints;
 
     final String bgImage = registeredCity.toLowerCase() == 'barcelona'
         ? 'assets/images/park_guell.jpg'
@@ -137,7 +167,31 @@ class UserPassScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildStatItem("ELS MEUS PUNTS", "$userPoints pts"),
+                                commerceController.isPointsLoading
+                                    ? Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "ELS MEUS PUNTS",
+                                            style: GoogleFonts.manrope(
+                                              color: Colors.white54,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 1,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          const SizedBox(
+                                            width: 15,
+                                            height: 15,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : _buildStatItem("ELS MEUS PUNTS", "${userPoints.toStringAsFixed(2)} pts"),
                                 _buildStatItem("ESTAT", "Actiu"),
                               ],
                             ),
@@ -161,7 +215,7 @@ class UserPassScreen extends StatelessWidget {
 
                     // Parte inferior: QR i botó Google Wallet
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                       child: Column(
                         children: [
                           QrImageView(
@@ -189,7 +243,7 @@ class UserPassScreen extends StatelessWidget {
                               );
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
                                 color: Colors.black,
                                 borderRadius: BorderRadius.circular(30),
@@ -204,13 +258,16 @@ class UserPassScreen extends StatelessWidget {
                                     width: 24,
                                     height: 24,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    "Afegeix a Google Wallet",
-                                    style: GoogleFonts.manrope(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    child: Text(
+                                      "Afegeix a Google Wallet",
+                                      style: GoogleFonts.manrope(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],

@@ -2,14 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
+import '../controller/commerce_controller.dart';
 import '../theme/app_theme.dart';
 
-class WalletCardScreen extends StatelessWidget {
+class WalletCardScreen extends StatefulWidget {
   const WalletCardScreen({super.key});
+
+  @override
+  State<WalletCardScreen> createState() => _WalletCardScreenState();
+}
+
+class _WalletCardScreenState extends State<WalletCardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthController>();
+      final email = auth.userData['email'] ?? auth.userData['preferred_username'];
+      final customerId = auth.userData['odoo_partner_id'] ?? auth.userData['customer_id'] ?? auth.userData['odoo_id'];
+      
+      int? odooId;
+      if (customerId != null) {
+        if (customerId is int) {
+          odooId = customerId;
+        } else {
+          odooId = int.tryParse(customerId.toString());
+        }
+      }
+
+      context.read<CommerceController>().fetchLoyaltyPoints(
+        customerId: odooId,
+        email: email,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final authController = context.watch<AuthController>();
+    final commerceController = context.watch<CommerceController>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -88,14 +119,23 @@ class WalletCardScreen extends StatelessWidget {
                           color: AppColors.secondary,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(
-                          "PUNTS: ${authController.userData['points'] ?? 0}",
-                          style: GoogleFonts.manrope(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: commerceController.isPointsLoading
+                            ? const SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                "PUNTS: ${commerceController.loyaltyPoints.toStringAsFixed(0)}",
+                                style: GoogleFonts.manrope(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ],
                   ),
