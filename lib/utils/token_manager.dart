@@ -1,14 +1,17 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenManager {
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _userIdKey = 'user_id';
+  static const String _userDataKey = 'user_data';
 
   static Future<void> saveTokens({
     required String accessToken,
     String? refreshToken,
     String? userId,
+    Map<String, dynamic>? userData,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_accessTokenKey, accessToken);
@@ -18,6 +21,30 @@ class TokenManager {
     if (userId != null) {
       await prefs.setString(_userIdKey, userId);
     }
+    if (userData != null) {
+      await prefs.setString(_userDataKey, json.encode(userData));
+    }
+  }
+
+  /// Guarda solo los datos del usuario
+  static Future<void> saveUserData(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userDataKey, json.encode(userData));
+  }
+
+  /// Recupera los datos del usuario
+  static Future<Map<String, dynamic>?> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dataStr = prefs.getString(_userDataKey);
+    if (dataStr != null && dataStr.isNotEmpty) {
+      try {
+        return json.decode(dataStr) as Map<String, dynamic>;
+      } catch (e) {
+        print("Error decoding user data: $e");
+        return null;
+      }
+    }
+    return null;
   }
 
   /// Recupera el access token
@@ -44,6 +71,7 @@ class TokenManager {
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
     await prefs.remove(_userIdKey);
+    await prefs.remove(_userDataKey);
   }
 
   /// Verifica si hay una sesión activa

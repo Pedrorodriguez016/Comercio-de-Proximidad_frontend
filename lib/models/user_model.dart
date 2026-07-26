@@ -1,0 +1,53 @@
+class UserModel {
+  String id;
+  String email;
+  String name;
+  int? odooPartnerId;
+  double points;
+  bool firstLogin;
+
+  UserModel({
+    required this.id,
+    required this.email,
+    required this.name,
+    this.odooPartnerId,
+    this.points = 0.0,
+    this.firstLogin = false,
+  });
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    int? parsePartnerId(dynamic val) {
+      if (val == null) return null;
+      if (val is int) return val;
+      return int.tryParse(val.toString());
+    }
+
+    double parsePoints(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is num) return val.toDouble();
+      return double.tryParse(val.toString()) ?? 0.0;
+    }
+
+    return UserModel(
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      email: (json['email'] ?? json['preferred_username'] ?? '').toString(),
+      name: (json['name'] ?? json['given_name'] ?? 'Usuari').toString(),
+      odooPartnerId: parsePartnerId(
+          json['odoo_partner_id'] ?? json['customer_id'] ?? json['odoo_id']),
+      points: parsePoints(
+          json['points'] ?? json['loyalty_points'] ?? json['balance']),
+      firstLogin: json['firstLogin'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'odoo_partner_id': odooPartnerId,
+      'points': points,
+      'firstLogin': firstLogin,
+    };
+  }
+}

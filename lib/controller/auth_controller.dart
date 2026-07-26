@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import '../utils/token_manager.dart';
 import 'package:app_links/app_links.dart';
 import '../services/auth_service.dart';
+import '../models/user_model.dart';
+import '../main.dart';
 
 class AuthController with ChangeNotifier {
   final AuthService _authService = AuthService();
   late AppLinks _appLinks;
 
-  bool _isInitializing =
-      true; // Nuevo: para saber si estamos cargando la app al inicio
+  bool _isInitializing = true;
   bool _isLoading = false;
   bool _isLoggedIn = false;
   String _userToken = '';
   Map<String, dynamic> _userData = {};
+  UserModel? _currentUser;
 
   // Getters
   bool get isInitializing => _isInitializing;
@@ -20,6 +22,7 @@ class AuthController with ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   String get userToken => _userToken;
   Map<String, dynamic> get userData => _userData;
+  UserModel? get currentUser => _currentUser;
 
   AuthController() {
     _initDeepLinks();
@@ -55,14 +58,22 @@ class AuthController with ChangeNotifier {
         var userRawData = tokens['user'];
         if (userRawData != null) {
           _userData = Map<String, dynamic>.from(userRawData);
+          _currentUser = UserModel.fromJson(_userData);
         }
 
         await TokenManager.saveTokens(
           accessToken: _userToken,
           refreshToken: tokens['refresh_token'],
           userId: _userData['_id'] ?? _userData['id'],
+          userData: _userData,
         );
         print("AUTH_CONTROLLER: Sesión guardada y login marcado como TRUE");
+
+        await refreshUserData();
+
+        if (navigatorKey.currentState != null) {
+          navigatorKey.currentState!.pushNamedAndRemoveUntil('/home', (route) => false);
+        }
       } else {
         print("AUTH_CONTROLLER: El intercambio de tokens devolvió NULL");
       }
@@ -76,17 +87,19 @@ class AuthController with ChangeNotifier {
 
   Future<void> checkLoginStatus() async {
     try {
-      _isInitializing = true;
-      notifyListeners();
-
       String? token = await TokenManager.getAccessToken();
       String? userId = await TokenManager.getUserId();
+      Map<String, dynamic>? userData = await TokenManager.getUserData();
 
       if (token != null) {
         _userToken = token;
         _isLoggedIn = true;
-        if (userId != null && userId.isNotEmpty) {
+        if (userData != null) {
+          _userData = userData;
+          _currentUser = UserModel.fromJson(_userData);
+        } else if (userId != null && userId.isNotEmpty) {
           _userData = {'_id': userId};
+          _currentUser = UserModel.fromJson(_userData);
         }
         notifyListeners();
         await refreshUserData();
@@ -116,13 +129,21 @@ class AuthController with ChangeNotifier {
         var userRawData = response.data['user'];
         if (userRawData != null) {
           _userData = Map<String, dynamic>.from(userRawData);
+          _currentUser = UserModel.fromJson(_userData);
         }
 
         await TokenManager.saveTokens(
           accessToken: _userToken,
           refreshToken: response.data['refresh_token'],
           userId: _userData['_id'] ?? _userData['id'],
+          userData: _userData,
         );
+
+        await refreshUserData();
+
+        if (navigatorKey.currentState != null) {
+          navigatorKey.currentState!.pushNamedAndRemoveUntil('/home', (route) => false);
+        }
 
         return true;
       }
@@ -167,11 +188,15 @@ class AuthController with ChangeNotifier {
   }
 
   Future<void> refreshUserData() async {
+    print("AUTH_CONTROLLER: refreshUserData started. Current _userData: $_userData");
     String? userId = _userData['_id'] ?? _userData['id'];
     if (userId != null && _userToken.isNotEmpty) {
       final updatedUser = await _authService.getProfile(userId, _userToken);
+      print("AUTH_CONTROLLER: getProfile response: $updatedUser");
       if (updatedUser != null) {
         _userData = Map<String, dynamic>.from(updatedUser);
+        _currentUser = UserModel.fromJson(_userData);
+        await TokenManager.saveUserData(_userData);
         notifyListeners();
       }
     }
@@ -182,14 +207,12 @@ class AuthController with ChangeNotifier {
     _userToken = '';
     _isLoggedIn = false;
     _userData = {};
+    _currentUser = null;
     notifyListeners();
   }
 
   Future<void> loginSameDevice() async {
     try {
-      // Nota: Aquí NO ponemos _isLoading = true global si no queremos que AuthWrapper reaccione
-      // Pero si queremos feedback en el botón, podemos usarlo.
-      // El problema era que AuthWrapper usaba isLoading para mostrar la Splash.
       _isLoading = true;
       notifyListeners();
       await _authService.loginWithIdentity();

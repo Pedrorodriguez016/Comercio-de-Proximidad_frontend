@@ -2,18 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
+import '../controller/commerce_controller.dart';
 import '../theme/app_theme.dart';
-import '../widgets/profile_stat_item.dart';
 import '../widgets/profile_menu_item.dart';
 import 'purchase_history_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshPoints();
+    });
+  }
+
+  void _refreshPoints() {
+    final auth = context.read<AuthController>();
+    final user = auth.currentUser;
+    final email = user?.email.isNotEmpty == true
+        ? user!.email
+        : (auth.userData['email'] ?? auth.userData['preferred_username']);
+    final customerId = user?.odooPartnerId ??
+        auth.userData['odoo_partner_id'] ??
+        auth.userData['customer_id'] ??
+        auth.userData['odoo_id'];
+
+    int? odooId;
+    if (customerId != null) {
+      if (customerId is int) {
+        odooId = customerId;
+      } else {
+        odooId = int.tryParse(customerId.toString());
+      }
+    }
+
+    context.read<CommerceController>().fetchLoyaltyPoints(
+          customerId: odooId,
+          email: email?.toString(),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
     final authController = context.watch<AuthController>();
-    final userData = authController.userData;
+    final commerceController = context.watch<CommerceController>();
+    final user = authController.currentUser;
+
+    final String displayName = user?.name.isNotEmpty == true
+        ? user!.name
+        : (authController.userData['name'] ?? 'Usuari Demo');
+    final String displayEmail = user?.email.isNotEmpty == true
+        ? user!.email
+        : (authController.userData['email'] ?? 'demo@comercio.local');
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -28,13 +75,15 @@ class ProfileScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: RefreshIndicator(
-        onRefresh: () => authController.refreshUserData(),
+        onRefresh: () async {
+          await authController.refreshUserData();
+          _refreshPoints();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              // Header con Avatar
               Center(
                 child: Stack(
                   children: [
@@ -76,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                userData['name'] ?? 'Usuari Demo',
+                displayName,
                 style: GoogleFonts.notoSerif(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -84,7 +133,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                userData['email'] ?? 'demo@comercio.local',
+                displayEmail,
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   color: AppColors.neutral,
@@ -92,7 +141,6 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Card de Puntos
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -104,7 +152,7 @@ class ProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -121,7 +169,7 @@ class ProfileScreen extends StatelessWidget {
                             Text(
                               "PUNTS ACUMULATS",
                               style: GoogleFonts.manrope(
-                                color: AppColors.tertiary.withOpacity(0.7),
+                                color: AppColors.tertiary.withValues(alpha: 0.7),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.5,
@@ -129,7 +177,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              "${userData['points'] ?? 0} pts",
+                              "${commerceController.loyaltyPoints.toStringAsFixed(0)} pts",
                               style: GoogleFonts.notoSerif(
                                 color: Colors.white,
                                 fontSize: 32,
@@ -141,7 +189,7 @@ class ProfileScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -179,7 +227,6 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Opciones de Menú
               ProfileMenuItem(
                 icon: Icons.history,
                 title: "Historial de compres",
@@ -198,7 +245,6 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Botón de Cerrar Sesión
               ProfileMenuItem(
                 icon: Icons.logout,
                 title: "Tancar sessió",

@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
-          "Explorar",
+          "Inici",
           style: GoogleFonts.notoSerif(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Hola, ${authController.userData['name'] ?? 'Usuari'}",
+              "Hola, ${authController.currentUser?.name ?? authController.userData['name'] ?? 'Usuari'}",
               style: GoogleFonts.notoSerif(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -126,25 +126,25 @@ class HomeScreen extends StatelessWidget {
                     title: "Alimentació", 
                     icon: Icons.restaurant, 
                     color: AppColors.primary,
-                    onTap: () => onCategoryTap("Alimentación"),
+                    onTap: () => onCategoryTap("Alimentació"),
                   ),
                   CategoryCard(
                     title: "Roba", 
                     icon: Icons.shopping_bag, 
                     color: AppColors.secondary,
-                    onTap: () => onCategoryTap("Ropa"),
+                    onTap: () => onCategoryTap("Roba"),
                   ),
                   CategoryCard(
                     title: "Restauració", 
                     icon: Icons.coffee, 
                     color: AppColors.neutral,
-                    onTap: () => onCategoryTap("Restauración"),
+                    onTap: () => onCategoryTap("Restauració"),
                   ),
                   CategoryCard(
                     title: "Serveis", 
                     icon: Icons.build, 
                     color: AppColors.primary,
-                    onTap: () => onCategoryTap("Servicios"),
+                    onTap: () => onCategoryTap("Serveis"),
                   ),
                 ],
               ),
