@@ -12,6 +12,8 @@ import 'controller/auth_controller.dart';
 import 'controller/navigation_controller.dart';
 import 'controller/commerce_controller.dart';
 import 'controller/purchase_controller.dart';
+import 'controller/event_controller.dart';
+import 'screens/events_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +25,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => NavigationController()),
         ChangeNotifierProvider(create: (_) => CommerceController()),
         ChangeNotifierProvider(create: (_) => PurchaseController()),
+        ChangeNotifierProvider(create: (_) => EventController()),
       ],
       child: const MyApp(),
     ),
@@ -48,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const AuthGuard(child: HomeScreen()),
         '/wallet-card': (context) => const AuthGuard(child: WalletCardScreen()),
         '/user-pass': (context) => const AuthGuard(child: UserPassScreen()),
+        '/events': (context) => const AuthGuard(child: EventsScreen()),
       },
     );
   }
