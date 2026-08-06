@@ -2,6 +2,7 @@ class UserModel {
   String id;
   String email;
   String name;
+  String city;
   int? odooPartnerId;
   double points;
   bool firstLogin;
@@ -10,6 +11,7 @@ class UserModel {
     required this.id,
     required this.email,
     required this.name,
+    this.city = '',
     this.odooPartnerId,
     this.points = 0.0,
     this.firstLogin = false,
@@ -32,6 +34,7 @@ class UserModel {
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       email: (json['email'] ?? json['preferred_username'] ?? '').toString(),
       name: (json['name'] ?? json['given_name'] ?? 'Usuari').toString(),
+      city: (json['city'] ?? json['poblacion'] ?? '').toString(),
       odooPartnerId: parsePartnerId(
           json['odoo_partner_id'] ?? json['customer_id'] ?? json['odoo_id']),
       points: parsePoints(

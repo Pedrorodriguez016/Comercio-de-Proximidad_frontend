@@ -69,8 +69,6 @@ class AuthController with ChangeNotifier {
         );
         print("AUTH_CONTROLLER: Sesión guardada y login marcado como TRUE");
 
-        await refreshUserData();
-
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushNamedAndRemoveUntil('/home', (route) => false);
         }
@@ -102,7 +100,6 @@ class AuthController with ChangeNotifier {
           _currentUser = UserModel.fromJson(_userData);
         }
         notifyListeners();
-        await refreshUserData();
       }
     } catch (e) {
       print("Error checking login status: $e");
@@ -138,8 +135,6 @@ class AuthController with ChangeNotifier {
           userId: _userData['_id'] ?? _userData['id'],
           userData: _userData,
         );
-
-        await refreshUserData();
 
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushNamedAndRemoveUntil('/home', (route) => false);
@@ -194,7 +189,22 @@ class AuthController with ChangeNotifier {
       final updatedUser = await _authService.getProfile(userId, _userToken);
       print("AUTH_CONTROLLER: getProfile response: $updatedUser");
       if (updatedUser != null) {
-        _userData = Map<String, dynamic>.from(updatedUser);
+        final Map<String, dynamic> mergedData = Map<String, dynamic>.from(updatedUser);
+        // Preserve SSI/Wallet identity fields if Odoo profile fields are empty
+        if ((mergedData['city']?.toString().isEmpty ?? true) && _userData['city']?.toString().isNotEmpty == true) {
+          mergedData['city'] = _userData['city'];
+        }
+        if ((mergedData['poblacion']?.toString().isEmpty ?? true) && _userData['poblacion']?.toString().isNotEmpty == true) {
+          mergedData['poblacion'] = _userData['poblacion'];
+        }
+        if ((mergedData['address']?.toString().isEmpty ?? true) && _userData['address']?.toString().isNotEmpty == true) {
+          mergedData['address'] = _userData['address'];
+        }
+        if ((mergedData['postalCode']?.toString().isEmpty ?? true) && _userData['postalCode']?.toString().isNotEmpty == true) {
+          mergedData['postalCode'] = _userData['postalCode'];
+        }
+
+        _userData = mergedData;
         _currentUser = UserModel.fromJson(_userData);
         await TokenManager.saveUserData(_userData);
         notifyListeners();

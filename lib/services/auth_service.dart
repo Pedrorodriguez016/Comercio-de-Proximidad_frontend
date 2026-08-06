@@ -15,14 +15,14 @@ class AuthService {
   ));
 
   Future<Response> login(String email, String password) async {
-    return await _dio.post('/auth/login/user/', data: {
+    return await _walletDio.post('/auth/login/user/', data: {
       'email': email,
       'password': password,
     });
   }
 
   Future<Response> register(Map<String, dynamic> userData) async {
-    return await _dio.post('/auth/register/user/', data: userData);
+    return await _walletDio.post('/auth/register/user/', data: userData);
   }
 
   // --- LÓGICA DE IDENTIDAD DIGITAL (SSI) ---
@@ -64,18 +64,39 @@ class AuthService {
       final response = await _walletDio.post('/auth/token', queryParameters: {
         'session_id': sessionId,
       });
-      print('AUTH_SERVICE: Intercambio exitoso: ${response.data}');
-
+      print('AUTH_SERVICE: response.data raw = ${response.data}');
       final data = response.data;
       if (data != null && data['access_token'] != null) {
         final accessToken = data['access_token'];
         final payload = _decodeJwt(accessToken);
+        print('AUTH_SERVICE: decoded JWT payload = $payload');
         
+        final Map<String, dynamic> directUser = data['user'] != null
+            ? Map<String, dynamic>.from(data['user'])
+            : {};
+        print('AUTH_SERVICE: directUser from backend = $directUser');
+
         data['user'] = {
-          'id': payload['sub'],
-          '_id': payload['sub'],
-          'email': payload['email'],
-          'name': payload['name'] ?? payload['given_name'] ?? 'Usuario Wallet',
+          'id': directUser['id'] ?? payload['sub'],
+          '_id': directUser['_id'] ?? payload['sub'],
+          'email': (directUser['email']?.toString().isNotEmpty == true)
+              ? directUser['email']
+              : payload['email'],
+          'name': (directUser['name']?.toString().isNotEmpty == true)
+              ? directUser['name']
+              : (payload['given_name'] ?? payload['name'] ?? 'Usuario Wallet'),
+          'surnames': (directUser['surnames']?.toString().isNotEmpty == true)
+              ? directUser['surnames']
+              : (payload['family_name'] ?? payload['lastName'] ?? ''),
+          'address': (directUser['address']?.toString().isNotEmpty == true)
+              ? directUser['address']
+              : (payload['address'] ?? ''),
+          'city': (directUser['city']?.toString().isNotEmpty == true)
+              ? directUser['city']
+              : (payload['city'] ?? ''),
+          'postalCode': (directUser['postalCode']?.toString().isNotEmpty == true)
+              ? directUser['postalCode']
+              : (payload['postalCode'] ?? payload['postal_code'] ?? ''),
           'firstLogin': false,
         };
       }

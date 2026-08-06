@@ -45,8 +45,11 @@ class _UserPassScreenState extends State<UserPassScreen> {
     final commerceController = context.watch<CommerceController>();
     final userData = authController.userData;
     
-    // Read the user's actual registered city
-    final String registeredCity = userData['city'] ?? 'Calella';
+    final String registeredCity = (userData['city']?.toString().isNotEmpty == true
+            ? userData['city']
+            : (authController.currentUser?.city.isNotEmpty == true
+                ? authController.currentUser!.city
+                : 'Calella')).toString().trim();
 
     final String userId = userData['_id'] ?? userData['id'] ?? 'Unknown ID';
     final String userName = userData['name'] ?? 'Usuari';
@@ -54,9 +57,11 @@ class _UserPassScreenState extends State<UserPassScreen> {
     
     final double userPoints = commerceController.loyaltyPoints;
 
-    final String bgImage = registeredCity.toLowerCase() == 'barcelona'
+    final String bgImage = registeredCity.toLowerCase().contains('barcelona')
         ? 'assets/images/park_guell.jpg'
         : 'assets/images/faro_calella.jpg';
+
+    print("USER_PASS_SCREEN: city en userData = '${userData['city']}', registeredCity = '$registeredCity'");
 
     return Scaffold(
       backgroundColor: AppColors.background,
