@@ -51,9 +51,9 @@ class _UserPassScreenState extends State<UserPassScreen> {
                 ? authController.currentUser!.city
                 : 'Calella')).toString().trim();
 
-    final String userId = userData['_id'] ?? userData['id'] ?? 'Unknown ID';
-    final String userName = userData['name'] ?? 'Usuari';
-    final String userEmail = userData['email'] ?? '';
+    final String userId = userData['id'] ?? userData['_id'] ?? 'Unknown ID';
+    final String userName = userData['name'] ?? authController.currentUser?.name ?? 'Usuari';
+    final String userEmail = userData['email'] ?? authController.currentUser?.email ?? '';
     
     final double userPoints = commerceController.loyaltyPoints;
 
