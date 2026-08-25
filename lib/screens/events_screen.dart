@@ -21,6 +21,7 @@ class _EventsScreenState extends State<EventsScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   bool _isCalendarView = true;
+  bool _showOnlyMyEvents = false;
 
   @override
   void initState() {
@@ -28,10 +29,10 @@ class _EventsScreenState extends State<EventsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final eventCtrl = context.read<EventController>();
       final authCtrl = context.read<AuthController>();
-      eventCtrl.loadEvents();
 
       final email =
           authCtrl.currentUser?.email ?? authCtrl.userData['email'] ?? '';
+      eventCtrl.loadEvents(email: email.isNotEmpty ? email : null);
       if (email.isNotEmpty) {
         eventCtrl.loadMyEvents(email);
       }
@@ -43,11 +44,15 @@ class _EventsScreenState extends State<EventsScreen> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  List<EventModel> _getEventsForDay(DateTime day, List<EventModel> allEvents) {
-    return allEvents.where((ev) {
+  List<EventModel> _getEventsForDay(DateTime day, List<EventModel> eventsList) {
+    return eventsList.where((ev) {
       final pDate = ev.parsedDateBegin;
       return pDate != null && _isSameDay(pDate, day);
     }).toList();
+  }
+
+  bool _isUserRegistered(EventModel ev, List<Map<String, dynamic>> myEvents) {
+    return ev.isRegistered || myEvents.any((m) => m['event_id'] == ev.id);
   }
 
   @override
@@ -61,10 +66,15 @@ class _EventsScreenState extends State<EventsScreen> {
         authCtrl.currentUser?.name ?? authCtrl.userData['name'] ?? '';
 
     final allEvents = eventCtrl.events;
+    final registeredEvents = allEvents
+        .where((ev) => _isUserRegistered(ev, eventCtrl.myEvents))
+        .toList();
+
+    final baseEvents = _showOnlyMyEvents ? registeredEvents : allEvents;
 
     final selectedEvents = _selectedDay != null
-        ? _getEventsForDay(_selectedDay!, allEvents)
-        : allEvents;
+        ? _getEventsForDay(_selectedDay!, baseEvents)
+        : baseEvents;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -93,7 +103,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await eventCtrl.loadEvents();
+          await eventCtrl.loadEvents(email: userEmail.isNotEmpty ? userEmail : null);
           if (userEmail.isNotEmpty) {
             await eventCtrl.loadMyEvents(userEmail);
           }
@@ -102,6 +112,83 @@ class _EventsScreenState extends State<EventsScreen> {
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
+                  // Selector de Pestaña / Filtro (Tots / Els meus)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showOnlyMyEvents = false;
+                                });
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: !_showOnlyMyEvents
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  "Tots els esdeveniments (${allEvents.length})",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: !_showOnlyMyEvents
+                                        ? Colors.white
+                                        : AppColors.neutral,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showOnlyMyEvents = true;
+                                });
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: _showOnlyMyEvents
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  "Els meus esdeveniments (${registeredEvents.length})",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: _showOnlyMyEvents
+                                        ? Colors.white
+                                        : AppColors.neutral,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   if (_isCalendarView) ...[
                     Card(
                       margin: const EdgeInsets.symmetric(
@@ -122,7 +209,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           selectedDayPredicate: (day) =>
                               _isSameDay(_selectedDay, day),
                           eventLoader: (day) =>
-                              _getEventsForDay(day, allEvents),
+                              _getEventsForDay(day, baseEvents),
                           onDaySelected: (selectedDay, focusedDay) async {
                             final isDeselecting =
                                 _isSameDay(_selectedDay, selectedDay);
@@ -135,13 +222,14 @@ class _EventsScreenState extends State<EventsScreen> {
                             });
 
                             if (isDeselecting) {
-                              await context.read<EventController>().loadEvents();
+                              await context.read<EventController>().loadEvents(email: userEmail.isNotEmpty ? userEmail : null);
                             } else {
                               await context
                                   .read<EventController>()
                                   .loadEvents(
                                     startDate: formattedDate,
                                     endDate: formattedDate,
+                                    email: userEmail.isNotEmpty ? userEmail : null,
                                   );
                             }
                           },
@@ -198,7 +286,9 @@ class _EventsScreenState extends State<EventsScreen> {
                           Text(
                             _selectedDay != null
                                 ? "Esdeveniments el ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}"
-                                : "Esdeveniments actius (${allEvents.length})",
+                                : _showOnlyMyEvents
+                                    ? "Els meus esdeveniments (${registeredEvents.length})"
+                                    : "Esdeveniments actius (${allEvents.length})",
                             style: GoogleFonts.manrope(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -211,7 +301,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                 setState(() {
                                   _selectedDay = null;
                                 });
-                                await context.read<EventController>().loadEvents();
+                                await context.read<EventController>().loadEvents(email: userEmail.isNotEmpty ? userEmail : null);
                               },
                               icon: const Icon(Icons.clear, size: 16),
                               label: const Text("Veure tots"),
@@ -225,7 +315,9 @@ class _EventsScreenState extends State<EventsScreen> {
                         ? EventsEmptyState(
                             message: _selectedDay != null
                                 ? "No hi ha cap esdeveniment per a aquest dia seleccionat."
-                                : "No hi ha esdeveniments disponibles.",
+                                : _showOnlyMyEvents
+                                    ? "Encara no t'has inscrit a cap esdeveniment."
+                                    : "No hi ha esdeveniments disponibles.",
                           )
                         : ListView.builder(
                             padding: const EdgeInsets.all(16),

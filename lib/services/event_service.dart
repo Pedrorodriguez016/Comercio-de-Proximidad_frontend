@@ -30,8 +30,8 @@ class EventService {
     ));
   }
 
-  /// Obté tots els esdeveniments disponibles des d'Odoo enviant el filtre per POST
-  Future<List<EventModel>> getEvents({String? startDate, String? endDate}) async {
+  /// Obté tots els esdeveniments disponibles des d'Odoo enviant els filtres per POST
+  Future<List<EventModel>> getEvents({String? startDate, String? endDate, String? email}) async {
     try {
       final body = <String, dynamic>{};
       if (startDate != null && startDate.isNotEmpty) {
@@ -39,6 +39,9 @@ class EventService {
       }
       if (endDate != null && endDate.isNotEmpty) {
         body['end_date'] = endDate;
+      }
+      if (email != null && email.isNotEmpty) {
+        body['email'] = email.trim();
       }
 
       final response = await _dio.post('/events', data: body);
@@ -75,12 +78,16 @@ class EventService {
     }
   }
 
-  /// Obté els esdeveniments de l'usuari des d'Odoo
-  Future<List<Map<String, dynamic>>> getMyEvents(String email) async {
+  /// Obté els esdeveniments de l'usuari des d'Odoo enviant credencials per POST
+  Future<List<Map<String, dynamic>>> getMyEvents(String email, {int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get(
+      final response = await _dio.post(
         '/events/my-events',
-        queryParameters: {'email': email.trim()},
+        data: {
+          'email': email.trim(),
+          'page': page,
+          'limit': limit,
+        },
       );
       dynamic data = response.data;
       if (data is String) {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../models/event_model.dart';
 import '../theme/app_theme.dart';
 import '../controller/event_controller.dart';
+import '../screens/event_detail_screen.dart';
 
 class EventCard extends StatelessWidget {
   final EventModel event;
@@ -31,11 +31,25 @@ class EventCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EventDetailScreen(
+                event: event,
+                userEmail: userEmail,
+                userName: userName,
+              ),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -80,39 +94,50 @@ class EventCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             if (event.description.isNotEmpty) ...[
-              HtmlWidget(
-                event.description,
-                textStyle: GoogleFonts.manrope(
+              Text(
+                _stripHtml(event.description),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
                   fontSize: 14,
                   color: AppColors.neutral,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
             ],
             Row(
               children: [
                 const Icon(Icons.location_on_outlined,
                     size: 18, color: AppColors.secondary),
                 const SizedBox(width: 6),
-                Text(
-                  event.address,
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    event.address,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 16),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
                 const Icon(Icons.storefront_outlined,
                     size: 18, color: AppColors.secondary),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     event.organizer,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.manrope(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      color: AppColors.neutral,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -190,7 +215,15 @@ class EventCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
+}
+
+  String _stripHtml(String htmlString) {
+    return htmlString
+        .replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
   }
 
   Widget _buildDateInfo(EventModel event) {

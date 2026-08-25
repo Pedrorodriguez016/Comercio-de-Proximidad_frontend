@@ -15,8 +15,8 @@ class EventController with ChangeNotifier {
   List<Map<String, dynamic>> get myEvents => _myEvents;
   String? get errorMessage => _errorMessage;
 
-  /// Carrega tots els esdeveniments amb filtre de data opcional
-  Future<void> loadEvents({String? startDate, String? endDate}) async {
+  /// Carrega tots els esdeveniments amb filtre de data opcional i email de l'usuari
+  Future<void> loadEvents({String? startDate, String? endDate, String? email}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -25,6 +25,7 @@ class EventController with ChangeNotifier {
       _events = await _eventService.getEvents(
         startDate: startDate,
         endDate: endDate,
+        email: email,
       );
     } catch (e) {
       _errorMessage = "No s'han pogut carregar els esdeveniments.";
@@ -66,11 +67,17 @@ class EventController with ChangeNotifier {
     return success;
   }
 
-  /// Comprova si l'esdeveniment ja ha finalitzat/expirat
+  /// Comprova si l'esdeveniment ja ha començat o finalitzat/expirat
   bool isEventExpired(EventModel event) {
-    final end = event.parsedDateEnd ?? event.parsedDateBegin;
-    if (end == null) return false;
-    return DateTime.now().isAfter(end);
+    final start = event.parsedDateBegin;
+    if (start != null && DateTime.now().isAfter(start)) {
+      return true;
+    }
+    final end = event.parsedDateEnd;
+    if (end != null && DateTime.now().isAfter(end)) {
+      return true;
+    }
+    return false;
   }
 
   /// Comprova si l'aforament de l'esdeveniment està complet
