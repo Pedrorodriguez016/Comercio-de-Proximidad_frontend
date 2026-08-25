@@ -26,17 +26,55 @@ class PurchaseModel {
 
     DateTime parseDate(dynamic val) {
       if (val == null) return DateTime.now();
-      if (val is String) {
-        return DateTime.tryParse(val) ?? DateTime.now();
+      final str = val.toString().trim();
+      if (str.isEmpty) return DateTime.now();
+
+      final iso = DateTime.tryParse(str);
+      if (iso != null) return iso;
+
+      try {
+        final parts = str.split(' ');
+        final dateParts = parts[0].split('/');
+        if (dateParts.length == 3) {
+          final day = int.parse(dateParts[0]);
+          final month = int.parse(dateParts[1]);
+          final year = int.parse(dateParts[2]);
+
+          int hour = 0;
+          int minute = 0;
+          if (parts.length > 1) {
+            final timeParts = parts[1].split(':');
+            if (timeParts.length >= 2) {
+              hour = int.parse(timeParts[0]);
+              minute = int.parse(timeParts[1]);
+            }
+          }
+          return DateTime(year, month, day, hour, minute);
+        }
+      } catch (e) {
+        print("Date parse error for '$str': $e");
       }
       return DateTime.now();
+    }
+
+    String cId = (json['commerce_id'] ?? json['merchant_id'] ?? '').toString();
+    String cName = (json['commerce_name'] ?? json['merchant_name'] ?? '').toString();
+
+    if (json['commerce'] is Map<String, dynamic>) {
+      final commMap = json['commerce'] as Map<String, dynamic>;
+      if (cId.isEmpty && commMap['id'] != null) {
+        cId = commMap['id'].toString();
+      }
+      if (cName.isEmpty && commMap['name'] != null) {
+        cName = commMap['name'].toString();
+      }
     }
 
     return PurchaseModel(
       id: (json['id'] ?? json['_id'] ?? json['name'] ?? '').toString(),
       email: (json['email'] ?? json['user_email'] ?? '').toString(),
-      commerceId: (json['commerce_id'] ?? json['merchant_id'] ?? '').toString(),
-      commerceName: (json['commerce_name'] ?? json['merchant_name'] ?? '').toString(),
+      commerceId: cId,
+      commerceName: cName,
       amount: parseDouble(json['amount'] ?? json['total_amount'] ?? json['amount_total']),
       date: parseDate(json['date'] ?? json['date_order'] ?? json['create_date']),
       pointsEarned: parseDouble(json['points'] ?? json['earned_points'] ?? json['points_earned']),

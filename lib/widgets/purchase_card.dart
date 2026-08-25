@@ -15,9 +15,12 @@ class PurchaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String displayName = (resolvedCommerceName != null && resolvedCommerceName!.isNotEmpty)
+    final String displayName =
+        (resolvedCommerceName != null && resolvedCommerceName!.isNotEmpty)
         ? resolvedCommerceName!
-        : (purchase.commerceName.isNotEmpty ? purchase.commerceName : 'Comerç Associat');
+        : (purchase.commerceName.isNotEmpty
+              ? purchase.commerceName
+              : 'Comerç Associat');
 
     final String dateStr =
         "${purchase.date.day.toString().padLeft(2, '0')}/${purchase.date.month.toString().padLeft(2, '0')}/${purchase.date.year}";

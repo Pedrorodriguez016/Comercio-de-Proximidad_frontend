@@ -28,7 +28,7 @@ class SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             Text(
-              "Comerç de Proximitat",
+              "EixConnecta",
               style: GoogleFonts.notoSerif(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,

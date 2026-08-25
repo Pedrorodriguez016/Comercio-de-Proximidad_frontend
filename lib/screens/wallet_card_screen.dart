@@ -42,6 +42,10 @@ class _WalletCardScreenState extends State<WalletCardScreen> {
     final authController = context.watch<AuthController>();
     final commerceController = context.watch<CommerceController>();
 
+    final userData = authController.userData;
+    final String userId = (userData['id'] ?? userData['_id'] ?? authController.currentUser?.id ?? '12345678').toString();
+    final String displayId = userId.length >= 8 ? userId.substring(0, 8) : userId;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -100,7 +104,7 @@ class _WalletCardScreenState extends State<WalletCardScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "ID: #${(authController.userData['_id'] ?? authController.userData['id'])?.toString().substring(0, 8) ?? '12345678'}",
+                    "ID: #$displayId",
                     style: GoogleFonts.manrope(
                       color: AppColors.tertiary.withOpacity(0.6),
                       fontSize: 12,
@@ -144,7 +148,7 @@ class _WalletCardScreenState extends State<WalletCardScreen> {
             ),
             const SizedBox(height: 40),
             Text(
-              "Benvingut/da!",
+              "Benvingut/da a EixConnecta!",
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSerif(
                 fontSize: 24,

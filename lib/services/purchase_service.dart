@@ -18,18 +18,36 @@ class PurchaseService {
     required String email,
     int skip = 0,
     int limit = 15,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     try {
+      final String? startStr = startDate != null
+          ? "${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}"
+          : null;
+      final String? endStr = endDate != null
+          ? "${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}"
+          : null;
+
+      final queryParams = <String, dynamic>{
+        'skip': skip.toString(),
+        'limit': limit.toString(),
+      };
+      if (startStr != null) queryParams['start_date'] = startStr;
+      if (endStr != null) queryParams['end_date'] = endStr;
+
+      final bodyData = <String, dynamic>{
+        'email': email,
+      };
+      if (startStr != null) bodyData['start_date'] = startStr;
+      if (endStr != null) bodyData['end_date'] = endStr;
+
       final response = await _odooDio.post(
         '/purchase_history',
-        queryParameters: {
-          'skip': skip.toString(),
-          'limit': limit.toString(),
-        },
-        data: {
-          'email': email,
-        },
+        queryParameters: queryParams,
+        data: bodyData,
       );
+
       if (response.statusCode == 200) {
         final data = response.data;
         if (data is List) {

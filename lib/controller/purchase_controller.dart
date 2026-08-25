@@ -3,6 +3,8 @@ import '../services/purchase_service.dart';
 import '../services/commerce_service.dart';
 import '../models/purchase_model.dart';
 
+enum DateFilterType { all, last7Days, thisMonth, custom }
+
 class PurchaseController with ChangeNotifier {
   final PurchaseService _purchaseService = PurchaseService();
   final CommerceService _commerceService = CommerceService();
@@ -14,6 +16,10 @@ class PurchaseController with ChangeNotifier {
   int _skip = 0;
   static const int _limit = 15;
 
+  DateFilterType _selectedFilter = DateFilterType.all;
+  DateTime? _startDate;
+  DateTime? _endDate;
+
   final Map<String, String> _commerceNames = {};
   final Set<String> _loadingCommerceIds = {};
 
@@ -21,6 +27,9 @@ class PurchaseController with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoadMoreLoading => _isLoadMoreLoading;
   bool get hasMore => _hasMore;
+  DateFilterType get selectedFilter => _selectedFilter;
+  DateTime? get startDate => _startDate;
+  DateTime? get endDate => _endDate;
   Map<String, String> get commerceNames => _commerceNames;
 
   Future<void> loadInitialPurchases(String email) async {
@@ -37,6 +46,8 @@ class PurchaseController with ChangeNotifier {
         email: email,
         skip: _skip,
         limit: _limit,
+        startDate: _startDate,
+        endDate: _endDate,
       );
       _purchases = results;
       if (results.length < _limit) {
@@ -63,6 +74,8 @@ class PurchaseController with ChangeNotifier {
         email: email,
         skip: _skip,
         limit: _limit,
+        startDate: _startDate,
+        endDate: _endDate,
       );
 
       _purchases.addAll(results);
@@ -75,6 +88,32 @@ class PurchaseController with ChangeNotifier {
       _isLoadMoreLoading = false;
       notifyListeners();
     }
+  }
+
+  void setFilter(DateFilterType filter, String email, {DateTime? customStart, DateTime? customEnd}) {
+    _selectedFilter = filter;
+    final now = DateTime.now();
+
+    switch (filter) {
+      case DateFilterType.all:
+        _startDate = null;
+        _endDate = null;
+        break;
+      case DateFilterType.last7Days:
+        _startDate = now.subtract(const Duration(days: 7));
+        _endDate = now;
+        break;
+      case DateFilterType.thisMonth:
+        _startDate = DateTime(now.year, now.month, 1);
+        _endDate = now;
+        break;
+      case DateFilterType.custom:
+        _startDate = customStart;
+        _endDate = customEnd;
+        break;
+    }
+
+    loadInitialPurchases(email);
   }
 
   Future<void> fetchCommerceNameIfNeeded(String commerceId) async {
@@ -90,7 +129,6 @@ class PurchaseController with ChangeNotifier {
       final commerce = await _commerceService.getCommerceById(commerceId);
       if (commerce != null && commerce.name.isNotEmpty) {
         _commerceNames[commerceId] = commerce.name;
-        // Optionally update any purchase in memory that has this commerceId
         for (var p in _purchases) {
           if (p.commerceId == commerceId) {
             p.commerceName = commerce.name;

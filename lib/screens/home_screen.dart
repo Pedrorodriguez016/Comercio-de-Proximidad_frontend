@@ -148,6 +148,18 @@ class HomeScreen extends StatelessWidget {
                     color: AppColors.primary,
                     onTap: () => onCategoryTap("Serveis"),
                   ),
+                  CategoryCard(
+                    title: "Cultura", 
+                    icon: Icons.menu_book, 
+                    color: AppColors.secondary,
+                    onTap: () => onCategoryTap("Cultura"),
+                  ),
+                  CategoryCard(
+                    title: "Salut", 
+                    icon: Icons.health_and_safety, 
+                    color: AppColors.neutral,
+                    onTap: () => onCategoryTap("Salut"),
+                  ),
                 ],
               ),
             ),
