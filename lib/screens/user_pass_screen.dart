@@ -196,7 +196,7 @@ class _UserPassScreenState extends State<UserPassScreen> {
                                           ),
                                         ],
                                       )
-                                    : _buildStatItem("ELS MEUS PUNTS", "${userPoints.toStringAsFixed(2)} pts"),
+                                    : _buildStatItem("ELS MEUS PUNTS", "${userPoints.toInt()} pts"),
                                 _buildStatItem("ESTAT", "Actiu"),
                               ],
                             ),

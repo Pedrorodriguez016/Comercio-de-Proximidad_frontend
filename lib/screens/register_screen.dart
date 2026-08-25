@@ -3,17 +3,41 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/auth_controller.dart';
 import '../theme/app_theme.dart';
+import '../utils/password_validator.dart';
+import '../widgets/password_input_section.dart';
+import '../widgets/address_autocomplete_field.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnamesController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
 
-  RegisterScreen({super.key});
+  PasswordValidationResult? _passwordValidation;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _surnamesController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _postalCodeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +53,7 @@ class RegisterScreen extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               AppColors.secondary,
-              Color(0xFFA6643C), 
+              Color(0xFFA6643C),
             ],
           ),
         ),
@@ -54,7 +78,7 @@ class RegisterScreen extends StatelessWidget {
                   Text(
                     "Uneix-te a la nostra comunitat",
                     style: GoogleFonts.manrope(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 18,
                     ),
                   ),
@@ -83,7 +107,7 @@ class RegisterScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.neutral.withOpacity(0.1),
+                                color: AppColors.neutral.withValues(alpha: 0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               )
@@ -109,76 +133,77 @@ class RegisterScreen extends StatelessWidget {
                               const SizedBox(height: 15),
                               TextField(
                                 controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
                                 decoration: const InputDecoration(
                                   hintText: "Correu electrònic",
                                   prefixIcon: Icon(Icons.email_outlined, color: AppColors.secondary),
                                 ),
                               ),
                               const SizedBox(height: 15),
-                              TextField(
-                                controller: _passwordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  hintText: "Contrasenya",
-                                  prefixIcon: Icon(Icons.lock_outline, color: AppColors.secondary),
-                                ),
+                              // Secció modular de Contrasenya i Confirmació amb Validació
+                              PasswordInputSection(
+                                passwordController: _passwordController,
+                                confirmPasswordController: _confirmPasswordController,
+                                onChanged: (result) {
+                                  _passwordValidation = result;
+                                },
                               ),
                               const SizedBox(height: 15),
-                              TextField(
-                                controller: _addressController,
-                                decoration: const InputDecoration(
-                                  hintText: "Adreça",
-                                  prefixIcon: Icon(Icons.home_outlined, color: AppColors.secondary),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              TextField(
-                                controller: _cityController,
-                                decoration: const InputDecoration(
-                                  hintText: "Ciutat",
-                                  prefixIcon: Icon(Icons.location_city_outlined, color: AppColors.secondary),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              TextField(
-                                controller: _postalCodeController,
-                                decoration: const InputDecoration(
-                                  hintText: "Codi postal",
-                                  prefixIcon: Icon(Icons.local_post_office_outlined, color: AppColors.secondary),
-                                ),
+                              // Secció modular d'Adreça Autocompletada amb OpenStreetMap (Nominatim)
+                              AddressAutocompleteField(
+                                addressController: _addressController,
+                                cityController: _cityController,
+                                postalCodeController: _postalCodeController,
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 40),
                         MaterialButton(
-                          onPressed: authController.isLoading 
-                            ? null 
-                            : () async {
-                                if (_nameController.text.trim().isEmpty ||
-                                    _emailController.text.trim().isEmpty ||
-                                    _passwordController.text.trim().isEmpty ||
-                                    _addressController.text.trim().isEmpty ||
-                                    _cityController.text.trim().isEmpty ||
-                                    _postalCodeController.text.trim().isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Si us plau, omple tots els camps")),
+                          onPressed: authController.isLoading
+                              ? null
+                              : () async {
+                                  if (_nameController.text.trim().isEmpty ||
+                                      _emailController.text.trim().isEmpty ||
+                                      _passwordController.text.trim().isEmpty ||
+                                      _confirmPasswordController.text.trim().isEmpty ||
+                                      _addressController.text.trim().isEmpty ||
+                                      _cityController.text.trim().isEmpty ||
+                                      _postalCodeController.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Si us plau, omple tots els camps")),
+                                    );
+                                    return;
+                                  }
+
+                                  final passVal = _passwordValidation ??
+                                      PasswordValidator.validate(
+                                        _passwordController.text,
+                                        _confirmPasswordController.text,
+                                      );
+
+                                  if (!passVal.isValid) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(passVal.errorMessage ?? "La contrasenya no compleix els requisits"),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final success = await authController.register(
+                                    _nameController.text.trim(),
+                                    _surnamesController.text.trim(),
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
+                                    _addressController.text.trim(),
+                                    _cityController.text.trim(),
+                                    _postalCodeController.text.trim(),
                                   );
-                                  return;
-                                }
-                                final success = await authController.register(
-                                  _nameController.text.trim(), 
-                                  _surnamesController.text.trim(), 
-                                  _emailController.text.trim(), 
-                                  _passwordController.text.trim(),
-                                  _addressController.text.trim(),
-                                  _cityController.text.trim(),
-                                  _postalCodeController.text.trim(),
-                                );
-                                if (success && context.mounted) {
-                                  Navigator.pop(context);
-                                }
-                              },
+                                  if (success && context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                },
                           height: 55,
                           minWidth: double.infinity,
                           color: AppColors.secondary,
@@ -186,15 +211,15 @@ class RegisterScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: authController.isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                "Registrar-se",
-                                style: GoogleFonts.manrope(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  "Registrar-se",
+                                  style: GoogleFonts.manrope(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
                         ),
                         const SizedBox(height: 20),
                         TextButton(
