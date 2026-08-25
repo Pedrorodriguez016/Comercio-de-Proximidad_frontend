@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,9 +8,17 @@ import 'api_client.dart';
 class AuthService {
   final Dio _dio = ApiClient().dio;
 
+  static String _sanitizeUrl(String rawUrl) {
+    var url = rawUrl.trim();
+    if (Platform.isAndroid && (url.contains('localhost') || url.contains('127.0.0.1'))) {
+      url = url.replaceAll('localhost', '10.0.2.2').replaceAll('127.0.0.1', '10.0.2.2');
+    }
+    return url;
+  }
+
   // Instancia de Dio dedicada para conectar con el backend de la Wallet-App
   final Dio _walletDio = Dio(BaseOptions(
-    baseUrl: dotenv.env['WALLET_API_URL'] ?? 'http://172.20.10.2:8000',
+    baseUrl: _sanitizeUrl(dotenv.env['WALLET_API_URL'] ?? 'http://10.0.2.2:8000'),
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
   ));
@@ -76,9 +85,13 @@ class AuthService {
             : {};
         print('AUTH_SERVICE: directUser from backend = $directUser');
 
+        final String keycloakId = payload['sub'] ?? directUser['keycloak_id'] ?? directUser['id'] ?? '';
+        final String userId = keycloakId.startsWith('did:') ? '' : keycloakId;
+
         data['user'] = {
-          'id': directUser['id'] ?? payload['sub'],
-          '_id': directUser['_id'] ?? payload['sub'],
+          'id': userId,
+          '_id': userId,
+          'keycloak_id': userId,
           'email': (directUser['email']?.toString().isNotEmpty == true)
               ? directUser['email']
               : payload['email'],

@@ -30,8 +30,11 @@ class UserModel {
       return double.tryParse(val.toString()) ?? 0.0;
     }
 
+    final rawId = (json['id'] ?? json['_id'] ?? json['keycloak_id'] ?? json['sub'] ?? '').toString();
+    final validId = rawId.startsWith('did:') ? '' : rawId;
+
     return UserModel(
-      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      id: validId,
       email: (json['email'] ?? json['preferred_username'] ?? '').toString(),
       name: (json['name'] ?? json['given_name'] ?? 'Usuari').toString(),
       city: (json['city'] ?? json['poblacion'] ?? '').toString(),
