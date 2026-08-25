@@ -87,7 +87,7 @@ class CommerceCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          commerce.category,
+                          _formatCategory(commerce.category),
                           style: GoogleFonts.manrope(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -95,16 +95,6 @@ class CommerceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (commerce.district.isNotEmpty) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          "•  ${commerce.district}",
-                          style: GoogleFonts.manrope(
-                            fontSize: 12,
-                            color: AppColors.neutral,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ],
@@ -119,5 +109,16 @@ class CommerceCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatCategory(String cat) {
+    final lower = cat.toLowerCase();
+    if (lower.contains('aliment')) return 'Alimentació';
+    if (lower.contains('ropa') || lower.contains('roba')) return 'Roba';
+    if (lower.contains('servei') || lower.contains('servicio')) return 'Serveis';
+    if (lower.contains('restaurac')) return 'Restauració';
+    if (lower.contains('cultur')) return 'Cultura';
+    if (lower.contains('salu')) return 'Salut';
+    return cat;
   }
 }

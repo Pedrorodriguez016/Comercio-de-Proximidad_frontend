@@ -46,37 +46,35 @@ class CommerceDetailScreen extends StatelessWidget {
   }
 
   IconData _getCategoryIcon(String type) {
-    switch (type.toLowerCase()) {
-      case 'alimentación':
-        return Icons.restaurant;
-      case 'ropa':
-        return Icons.shopping_bag;
-      case 'cultura':
-        return Icons.book;
-      case 'servicios':
-        return Icons.build;
-      case 'restauración':
-        return Icons.coffee;
-      case 'salud':
-        return Icons.medical_services;
-      default:
-        return Icons.store;
+    final lower = type.toLowerCase();
+    if (lower.contains('aliment')) {
+      return Icons.restaurant;
+    } else if (lower.contains('ropa') || lower.contains('roba')) {
+      return Icons.shopping_bag;
+    } else if (lower.contains('cultur')) {
+      return Icons.book;
+    } else if (lower.contains('servei') || lower.contains('servicio')) {
+      return Icons.build;
+    } else if (lower.contains('restaurac')) {
+      return Icons.coffee;
+    } else if (lower.contains('salu')) {
+      return Icons.medical_services;
     }
+    return Icons.store;
   }
 
   Color _getCategoryColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'alimentación':
-        return AppColors.primary;
-      case 'ropa':
-        return AppColors.secondary;
-      case 'restauración':
-        return const Color(0xFFE0533C);
-      case 'servicios':
-        return const Color(0xFF4CA64C);
-      default:
-        return AppColors.neutral;
+    final lower = type.toLowerCase();
+    if (lower.contains('aliment')) {
+      return AppColors.primary;
+    } else if (lower.contains('ropa') || lower.contains('roba')) {
+      return AppColors.secondary;
+    } else if (lower.contains('restaurac')) {
+      return const Color(0xFFE0533C);
+    } else if (lower.contains('servei') || lower.contains('servicio')) {
+      return const Color(0xFF4CA64C);
     }
+    return AppColors.primary;
   }
 
   @override
@@ -230,40 +228,41 @@ class CommerceDetailScreen extends StatelessWidget {
                       icon: Icons.location_on_outlined,
                       iconColor: AppColors.secondary,
                       children: [
-                        CommerceDetailRow(icon: Icons.map, label: "Adreça", value: address),
-                        CommerceDetailRow(icon: Icons.holiday_village, label: "Barri", value: neighborhood),
-                        CommerceDetailRow(icon: Icons.domain, label: "Districte", value: district),
-                        if (lat != null && lng != null && lat != 0.0 && lng != 0.0) ...[
-                          const SizedBox(height: 15),
-                          CommerceMapView(
-                            latitude: lat,
-                            longitude: lng,
-                            markerColor: themeColor,
-                            height: 200,
+                        CommerceDetailRow(icon: Icons.map_outlined, label: "Adreça", value: address),
+                        if (commerce.eixComercialName != null && commerce.eixComercialName!.isNotEmpty)
+                          CommerceDetailRow(
+                            icon: Icons.storefront_outlined,
+                            label: "Eix Comercial",
+                            value: commerce.eixComercialName!,
                           ),
-                        ],
+                        if (commerce.neighborhood.isNotEmpty)
+                          CommerceDetailRow(icon: Icons.holiday_village_outlined, label: "Barri", value: neighborhood),
+                        const SizedBox(height: 15),
+                        CommerceMapView(
+                          latitude: lat ?? 0.0,
+                          longitude: lng ?? 0.0,
+                          address: address,
+                          markerColor: themeColor,
+                          height: 200,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    CommerceInfoCard(
-                      title: "Detalls del Comerç",
-                      icon: Icons.info_outline,
-                      iconColor: AppColors.primary,
-                      children: [
-                        const CommerceDetailRow(
-                          icon: Icons.person_outline,
-                          label: "Propietari",
-                          value: "Associat a la xarxa local",
-                        ),
-                        if (lat != null && lng != null && lat != 0.0 && lng != 0.0) ...[
+                    if (lat != null && lng != null && lat != 0.0 && lng != 0.0) ...[
+                      CommerceInfoCard(
+                        title: "Detalls del Comerç",
+                        icon: Icons.info_outline,
+                        iconColor: AppColors.primary,
+                        children: [
                           CommerceDetailRow(
                             icon: Icons.explore_outlined,
                             label: "Coordenades",
                             value: "${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}",
                           ),
                         ],
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                     const SizedBox(height: 35),
                     Row(
                       children: [
@@ -303,21 +302,20 @@ class CommerceDetailScreen extends StatelessWidget {
   }
 
   String _getTranslatedCategory(String type) {
-    switch (type.toLowerCase()) {
-      case 'alimentación':
-        return 'Alimentació';
-      case 'ropa':
-        return 'Roba';
-      case 'cultura':
-        return 'Cultura';
-      case 'servicios':
-        return 'Serveis';
-      case 'restauración':
-        return 'Restauració';
-      case 'salud':
-        return 'Salut';
-      default:
-        return type;
+    final lower = type.toLowerCase();
+    if (lower.contains('aliment')) {
+      return 'Alimentació';
+    } else if (lower.contains('ropa') || lower.contains('roba')) {
+      return 'Roba';
+    } else if (lower.contains('cultur')) {
+      return 'Cultura';
+    } else if (lower.contains('servei') || lower.contains('servicio')) {
+      return 'Serveis';
+    } else if (lower.contains('restaurac')) {
+      return 'Restauració';
+    } else if (lower.contains('salu')) {
+      return 'Salut';
     }
+    return type;
   }
 }

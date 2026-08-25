@@ -8,25 +8,31 @@ class CommerceService {
 
   CommerceService() {
     final baseUrl = dotenv.env['ODOO_API_URL'] ?? 'http://172.20.10.2:8069';
-    _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
 
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        print("ODOO_COMMERCE_SERVICE_REQUEST: [${options.method}] ${options.uri}");
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioException e, handler) {
-        print("ODOO_COMMERCE_SERVICE_ERROR: $e");
-        return handler.next(e);
-      },
-    ));
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          print(
+            "ODOO_COMMERCE_SERVICE_REQUEST: [${options.method}] ${options.uri}",
+          );
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          return handler.next(response);
+        },
+        onError: (DioException e, handler) {
+          print("ODOO_COMMERCE_SERVICE_ERROR: $e");
+          return handler.next(e);
+        },
+      ),
+    );
   }
 
   /// Searches Odoo commerces matching parameters and returns a list of CommerceModel.
@@ -44,7 +50,7 @@ class CommerceService {
         'skip': skip.toString(),
         'limit': limit.toString(),
       };
-      
+
       final requestData = <String, dynamic>{};
       if (eixComercialId != null) {
         requestData['eix_comercial_id'] = eixComercialId;
@@ -152,5 +158,54 @@ class CommerceService {
       print("Error fetching loyalty points from Odoo: $e");
       return null;
     }
+  }
+
+  /// Geocodes an address string using OpenStreetMap's Nominatim API.
+  Future<Map<String, double>?> geocodeAddress(String rawAddress) async {
+    if (rawAddress.isEmpty) return null;
+    final dio = Dio();
+
+    final queriesToTry = <String>[];
+    final lower = rawAddress.toLowerCase();
+
+    final withCity = lower.contains('barcelona') ? rawAddress : '$rawAddress, Barcelona';
+    queriesToTry.add(withCity);
+
+    final match = RegExp(r'^(.*?)\s+(\d+)(.*)$').firstMatch(rawAddress);
+    if (match != null) {
+      final streetName = match.group(1)?.trim() ?? '';
+      final number = match.group(2)?.trim() ?? '';
+      final rest = match.group(3)?.trim() ?? '';
+      final formattedNumberFirst = '$number $streetName $rest'.trim();
+      queriesToTry.add(formattedNumberFirst.toLowerCase().contains('barcelona')
+          ? formattedNumberFirst
+          : '$formattedNumberFirst, Barcelona');
+    }
+
+    for (final query in queriesToTry) {
+      try {
+        final url = 'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=1';
+        final response = await dio.get(
+          url,
+          options: Options(
+            headers: {
+              'User-Agent': 'ComercioDeProximidadApp/1.0 (com.example.app_tfg)',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200 && response.data is List && (response.data as List).isNotEmpty) {
+          final firstResult = (response.data as List).first;
+          final double? lat = double.tryParse(firstResult['lat']?.toString() ?? '');
+          final double? lon = double.tryParse(firstResult['lon']?.toString() ?? '');
+          if (lat != null && lon != null) {
+            return {'lat': lat, 'lng': lon};
+          }
+        }
+      } catch (e) {
+        print("Error in geocoding attempt for '$query': $e");
+      }
+    }
+    return null;
   }
 }

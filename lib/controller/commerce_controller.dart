@@ -6,6 +6,10 @@ import '../models/eix_comercial_model.dart';
 class CommerceController with ChangeNotifier {
   final CommerceService _commerceService = CommerceService();
 
+  CommerceController() {
+    fetchEixosComercials();
+  }
+
   List<CommerceModel> _commerces = [];
   bool _isLoading = false;
   bool _isLoadMoreLoading = false;
@@ -142,5 +146,10 @@ class CommerceController with ChangeNotifier {
     _selectedEixId = null;
     _selectedDistrict = '';
     searchCommerces();
+  }
+
+  /// Delegates address geocoding to CommerceService.
+  Future<Map<String, double>?> geocodeAddress(String rawAddress) async {
+    return await _commerceService.geocodeAddress(rawAddress);
   }
 }

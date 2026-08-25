@@ -77,7 +77,10 @@ class SearchFilterSheet extends StatelessWidget {
                         "Tipus de Comerç",
                         style: GoogleFonts.manrope(fontSize: 14, color: AppColors.neutral),
                       ),
-                      value: controller.selectedCategory.isEmpty ? null : controller.selectedCategory,
+                      value: (controller.selectedCategory.isNotEmpty &&
+                              ["Alimentació", "Roba", "Restauració", "Serveis", "Cultura", "Salut"].contains(controller.selectedCategory))
+                          ? controller.selectedCategory
+                          : null,
                       isExpanded: true,
                       items: [
                         DropdownMenuItem<String>(
@@ -99,6 +102,14 @@ class SearchFilterSheet extends StatelessWidget {
                         DropdownMenuItem<String>(
                           value: "Serveis",
                           child: Text("Serveis", style: GoogleFonts.manrope(fontSize: 14)),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: "Cultura",
+                          child: Text("Cultura", style: GoogleFonts.manrope(fontSize: 14)),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: "Salut",
+                          child: Text("Salut", style: GoogleFonts.manrope(fontSize: 14)),
                         ),
                       ],
                       onChanged: (val) {
